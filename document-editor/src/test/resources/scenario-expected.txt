@@ -1,0 +1,4 @@
+Owner: Shared. Expected output of scenario.txt, compared byte-for-byte by ScenarioTest.
+WHAT TO DO: once output wording is final (week of Nov 16), run the script, check every line by hand,
+and save the output here. Update it whenever message wording changes on purpose.
+(Placeholder - empty until then.)
