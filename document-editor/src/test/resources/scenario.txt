@@ -1,0 +1,9 @@
+# scenario.txt  -  Owner: Shared (Sam writes it in week 1, Jack reviews)
+# The ConOps Section 2.1 workflow written as editor commands. ScenarioTest runs this file.
+# WHAT TO DO:
+#   1. Turn every step of the ConOps 2.1 scenario into one or more commands from the Section 1.3 table.
+#   2. Cover at least: build sections, add paragraphs, insert/delete/move, format, checkpoint save,
+#      edits, checkpoint restore, view plain and markup at two widths, both breakers, stats,
+#      find, replace-all, undo of replace-all, macro record/play/undo.
+#   3. Keep it in the same order as the scenario so the demo can trace it back to use cases.
+# (Placeholder - no commands yet.)

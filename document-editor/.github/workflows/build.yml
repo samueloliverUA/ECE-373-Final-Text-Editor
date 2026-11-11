@@ -1,0 +1,21 @@
+# build.yml  -  Owner: Jack (Reviewer: Sam)  -  Week of Oct 28
+# Runs `mvn clean test` on every pull request and push to main (design doc 7.2 'Always green', 6.9.9).
+# WHAT TO DO: commit with pom.xml; in GitHub settings, protect main and require this check to pass before merging.
+name: build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - run: mvn -B clean test
