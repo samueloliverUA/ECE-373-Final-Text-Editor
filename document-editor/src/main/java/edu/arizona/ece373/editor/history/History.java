@@ -1,36 +1,71 @@
-/*
- * History.java   (class)
- * Package:   edu.arizona.ece373.editor.history
- * Owner:     Jack        Reviewer: Sam
- * When:      Week of Oct 28
- * Pattern:   Command (invoker)
- * Satisfies: 6.4.1-6.4.4, 6.8.7
- * Design doc: Fig 2a, Figs 3-5, Fig 7; Sections 5.2, 5.3
+package edu.arizona.ece373.editor.history;
+
+import edu.arizona.ece373.editor.model.Document;
+import java.util.ArrayDeque;
+import java.util.Deque;
+
+/**
+ * Undo and redo stacks with no size limit (6.4.3).
  *
- * PURPOSE: Undo and redo stacks with no small limit, plus grouping for macros.
- *
- * MEMBERS (from the class diagram):
- *   - -undoStack : Deque<EditCommand>
- *   - -redoStack : Deque<EditCommand>
- *   - +perform(c : EditCommand)
- *   - +undo()
- *   - +redo()
- *   - +beginGroup(name : String)
- *   - +endGroup()
- *   - +abortGroup()
- *
- * WHAT TO DO:
- *   1. perform(c): c.validate(doc), c.execute(doc), then push on undoStack and clear redoStack.
- *      If a group is open, add c to the group instead of the stack.
- *   2. undo(): nothing to undo -> message. Otherwise pop, c.undo(doc), push on redoStack.
- *   3. redo(): nothing to redo -> message. Otherwise pop, c.execute(doc), push on undoStack.
- *   4. Use ArrayDeque; no size cap (6.4.3).
- *   5. beginGroup(name) opens a CompositeCommand; endGroup() pushes it as ONE entry (skip if
- *      empty); abortGroup() undoes the open group and discards it.
- *
- * TESTED BY: HistoryTest
- *
- * DONE WHEN: 1,000 edits can all be undone and redone; a new edit after undo empties redo.
- *
- * (Placeholder only - no code yet. Replace this comment with the class and its JavaDoc.)
+ * <p>TODO (week of Nov 16): {@code beginGroup}/{@code endGroup}/{@code abortGroup} for macro
+ * replay, using CompositeCommand.
  */
+public final class History {
+
+    private final Document doc;
+    private final Deque<EditCommand> undoStack = new ArrayDeque<>();
+    private final Deque<EditCommand> redoStack = new ArrayDeque<>();
+
+    /**
+     * @param doc the document every command runs against
+     */
+    public History(Document doc) {
+        this.doc = doc;
+    }
+
+    /**
+     * Validates and executes {@code c}, then records it. A new change discards the redo path.
+     *
+     * @param c the command
+     * @throws edu.arizona.ece373.editor.model.EditException if validation fails; nothing is
+     *     changed or recorded in that case
+     */
+    public void perform(EditCommand c) {
+        c.validate(doc);
+        c.execute(doc);
+        undoStack.push(c);
+        redoStack.clear();
+    }
+
+    /** @return a message saying what was undone, or that there was nothing to undo */
+    public String undo() {
+        if (undoStack.isEmpty()) {
+            return "Nothing to undo";
+        }
+        EditCommand c = undoStack.pop();
+        c.undo(doc);
+        redoStack.push(c);
+        return "Undid: " + c.describe();
+    }
+
+    /** @return a message saying what was redone, or that there was nothing to redo */
+    public String redo() {
+        if (redoStack.isEmpty()) {
+            return "Nothing to redo";
+        }
+        EditCommand c = redoStack.pop();
+        c.execute(doc);
+        undoStack.push(c);
+        return "Redid: " + c.describe();
+    }
+
+    /** @return true if {@link #undo} would do something */
+    public boolean canUndo() {
+        return !undoStack.isEmpty();
+    }
+
+    /** @return true if {@link #redo} would do something */
+    public boolean canRedo() {
+        return !redoStack.isEmpty();
+    }
+}

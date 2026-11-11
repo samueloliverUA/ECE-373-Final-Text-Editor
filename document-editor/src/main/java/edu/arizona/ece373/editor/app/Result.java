@@ -1,24 +1,49 @@
-/*
- * Result.java   (class)
- * Package:   edu.arizona.ece373.editor.app
- * Owner:     Shared        Reviewer: Both
- * When:      Week of Oct 28
- * Design doc: Fig 2a
- *
- * PURPOSE: Immutable outcome of a command: success flag plus the one-line message shown to the
- *   user.
- *
- * MEMBERS (from the class diagram):
- *   - +ok : boolean
- *   - +message : String
- *
- * WHAT TO DO:
- *   1. Fields ok and message, both final.
- *   2. Static factories Result.ok(msg) and Result.error(msg).
- *
- * TESTED BY: EditorTest
- *
- * NOTE: Tiny file; whoever starts Editor first writes it.
- *
- * (Placeholder only - no code yet. Replace this comment with the class and its JavaDoc.)
+package edu.arizona.ece373.editor.app;
+
+/**
+ * Immutable outcome of a command: success flag plus the message shown to the user.
  */
+public final class Result {
+
+    /** True if the command succeeded. */
+    public final boolean ok;
+    /** The message shown to the user. */
+    public final String message;
+    /** True if the console should exit after showing this result. */
+    public final boolean quit;
+
+    private Result(boolean ok, String message, boolean quit) {
+        this.ok = ok;
+        this.message = message;
+        this.quit = quit;
+    }
+
+    /**
+     * @param msg the message to show
+     * @return a success result
+     */
+    public static Result ok(String msg) {
+        return new Result(true, msg, false);
+    }
+
+    /**
+     * @param msg one line naming the problem
+     * @return a failure result
+     */
+    public static Result error(String msg) {
+        return new Result(false, msg, false);
+    }
+
+    /**
+     * @param msg the goodbye message
+     * @return a success result that tells the console to exit
+     */
+    public static Result quit(String msg) {
+        return new Result(true, msg, true);
+    }
+
+    @Override
+    public String toString() {
+        return (ok ? "" : "Error: ") + message;
+    }
+}

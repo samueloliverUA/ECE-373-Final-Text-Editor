@@ -1,36 +1,425 @@
-/*
- * CommandParser.java   (class)
- * Package:   edu.arizona.ece373.editor.cli
- * Owner:     Sam        Reviewer: Jack
- * When:      Week of Oct 28
- * Pattern:   Factory (table of ActionFactory objects keyed by verb)
- * Satisfies: 6.1.1, 6.1.3, 6.1.5
- * Design doc: Section 1.3 (command table), Fig 2a, Fig 3
+package edu.arizona.ece373.editor.cli;
+
+import edu.arizona.ece373.editor.app.Action;
+import edu.arizona.ece373.editor.app.Editor;
+import edu.arizona.ece373.editor.app.Result;
+import edu.arizona.ece373.editor.history.AddParagraphCommand;
+import edu.arizona.ece373.editor.history.AddSectionCommand;
+import edu.arizona.ece373.editor.model.SectionPath;
+import edu.arizona.ece373.editor.model.TextRange;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
+/**
+ * Turns one line of text into an {@link Action}. The only class that knows command syntax
+ * (design doc Section 1.3).
  *
- * PURPOSE: Turns one line of text into an Action. The ONLY class that knows command syntax.
+ * <p>Factory pattern: a table of {@link ActionFactory} lambdas keyed by verb. Adding a command
+ * means adding one {@link #register} call in the constructor. Verbs may be one word
+ * ({@code undo}) or two ({@code section add}); a two-word match wins over a one-word one. The
+ * parser never touches the Document; the actions it builds call Editor methods when run.
  *
- * MEMBERS (from the class diagram):
- *   - -factories : Map<String, ActionFactory>
- *   - +parse(line : String) : Action
+ * <p>Every verb in the Section 1.3 table is parsed and its arguments are checked. Verbs whose
+ * engine support has not landed yet build an action that reports "not available yet" when
+ * run; each is marked {@code TODO} with the Editor call to make once it exists.
  *
- * WHAT TO DO:
- *   1. Split the line into tokens: words, quoted strings ("two words"), positions p2:14, ranges
- *      p2:5-12, section paths 2.1.
- *   2. Look up the verb in the factories map. Some verbs are two words: 'section add', 'para
- *      add', 'checkpoint save', 'checkpoint restore', 'checkpoint list', 'macro record', 'macro
- *      end', 'macro play', 'format title'.
- *   3. In the constructor register one ActionFactory (a lambda) per verb. Adding a command =
- *      adding one entry.
- *   4. Unknown verb, missing argument or bad number -> throw ParseException with a one-line
- *      message that names the problem.
- *   5. Never touch the Document here. Build an Action that calls Editor methods when run.
- *   6. Week 1: section add, para add, outline, undo, redo, quit. Add the rest of the verbs
- *      (Section 1.3 table of the design doc) in the week each feature lands.
- *
- * TESTED BY: CommandParserTest
- *
- * DONE WHEN: Every command in the Section 1.3 table parses, and every malformed line produces a
- *   clear ParseException.
- *
- * (Placeholder only - no code yet. Replace this comment with the class and its JavaDoc.)
+ * <p>Satisfies 6.1.1, 6.1.3, 6.1.5.
  */
+public final class CommandParser {
+
+    private static final Set<String> TOGGLE_VALUES = Set.of("on", "off");
+
+    private final Map<String, ActionFactory> factories = new LinkedHashMap<>();
+    /** First words of two-word verbs, e.g. {@code section}, for better error messages. */
+    private final Set<String> prefixes = new HashSet<>();
+
+    /** Registers every supported verb. */
+    public CommandParser() {
+        registerStructure();
+        registerEditing();
+        registerHistory();
+        registerFormatting();
+        registerViewing();
+        registerSearch();
+        registerAutomation();
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // Verb table
+    // ---------------------------------------------------------------------------------------
+
+    /** UC1: section add [parent] "title" · para add &lt;section&gt; "text" · outline. */
+    private void registerStructure() {
+        register("section add", a -> {
+            SectionPath parent = null;
+            String title;
+            if (a.count() > 0 && !a.isQuoted(0)) {
+                parent = a.sectionPath(0);
+                title = a.text(1);
+                a.expectAtMost(2);
+            } else {
+                title = a.text(0);
+                a.expectAtMost(1);
+            }
+            SectionPath p = parent;
+            return e -> e.perform(new AddSectionCommand(p, title));
+        });
+
+        register("para add", a -> {
+            SectionPath section = a.sectionPath(0);
+            String text = a.text(1);
+            a.expectAtMost(2);
+            return e -> e.perform(new AddParagraphCommand(section, text));
+        });
+
+        register("outline", a -> {
+            a.expectAtMost(0);
+            return Editor::outline;
+        });
+    }
+
+    /** UC1: insert · delete · replace · move · split · merge. */
+    private void registerEditing() {
+        register("insert", a -> {
+            TextRange at = a.position(0);
+            String text = a.text(1);
+            a.expectAtMost(2);
+            // TODO: e -> e.perform(new InsertTextCommand(at, text))
+            return notYet("insert");
+        });
+
+        register("delete", a -> {
+            TextRange range = a.range(0);
+            a.expectAtMost(1);
+            // TODO: e -> e.perform(new DeleteTextCommand(range))
+            return notYet("delete");
+        });
+
+        register("replace", a -> {
+            TextRange range = a.range(0);
+            String text = a.text(1);
+            a.expectAtMost(2);
+            // TODO: e -> e.perform(new ReplaceTextCommand(range, text))
+            return notYet("replace");
+        });
+
+        register("move", a -> {
+            TextRange source = a.range(0);
+            TextRange dest = a.position(1);
+            a.expectAtMost(2);
+            // TODO: e -> e.perform(new MoveTextCommand(source, dest))
+            return notYet("move");
+        });
+
+        register("split", a -> {
+            TextRange at = a.position(0);
+            a.expectAtMost(1);
+            // TODO: e -> e.perform(new SplitParagraphCommand(at))
+            return notYet("split");
+        });
+
+        register("merge", a -> {
+            int paragraph = a.paragraph(0);
+            a.expectAtMost(1);
+            // TODO: e -> e.perform(new MergeParagraphsCommand(paragraph))
+            return notYet("merge");
+        });
+    }
+
+    /** UC2: undo · redo · checkpoint save/restore/list. */
+    private void registerHistory() {
+        register("undo", a -> {
+            a.expectAtMost(0);
+            return notRecorded(Editor::undo);
+        });
+
+        register("redo", a -> {
+            a.expectAtMost(0);
+            return notRecorded(Editor::redo);
+        });
+
+        register("checkpoint save", a -> {
+            String name = a.word(0);
+            a.expectAtMost(1);
+            // TODO: e -> e.saveCheckpoint(name)
+            return notYet("checkpoint save");
+        });
+
+        register("checkpoint restore", a -> {
+            String name = a.word(0);
+            a.expectAtMost(1);
+            // TODO: e -> e.restoreCheckpoint(name)
+            return notYet("checkpoint restore");
+        });
+
+        register("checkpoint list", a -> {
+            a.expectAtMost(0);
+            // TODO: e -> e.listCheckpoints()
+            return notYet("checkpoint list");
+        });
+    }
+
+    /** UC3: format &lt;range&gt; &lt;attr&gt; &lt;value&gt; · format title &lt;section&gt; ... · formats. */
+    private void registerFormatting() {
+        register("format", a -> {
+            TextRange range = a.range(0);
+            String[] change = formatChange(a, 1);
+            // TODO: e -> e.perform(new FormatTextCommand(range, FormatChange.parse(change)))
+            return notYet("format");
+        });
+
+        register("format title", a -> {
+            SectionPath section = a.sectionPath(0);
+            String[] change = formatChange(a, 1);
+            // TODO: e -> e.perform(new FormatTitleCommand(section, FormatChange.parse(change)))
+            return notYet("format title");
+        });
+
+        // Optional requirement 6.5.6 (stretch goal).
+        register("formats", a -> {
+            a.expectAtMost(0);
+            // TODO: e -> e.formatCount()
+            return notYet("formats");
+        });
+    }
+
+    /** UC4: view plain|markup · width n · breaker greedy|balanced · show · stats. */
+    private void registerViewing() {
+        register("view", a -> {
+            String mode = oneOf(a, 0, "view", Set.of("plain", "markup"));
+            a.expectAtMost(1);
+            // TODO: e -> e.setView(mode)
+            return notYet("view");
+        });
+
+        register("width", a -> {
+            int width = a.number(0);
+            a.expectAtMost(1);
+            // Range 10-200 is checked by ViewSettings so the previous width is kept (UC4 1a).
+            // TODO: e -> e.setWidth(width)
+            return notYet("width");
+        });
+
+        register("breaker", a -> {
+            String kind = oneOf(a, 0, "breaker", Set.of("greedy", "balanced"));
+            a.expectAtMost(1);
+            // TODO: e -> e.setBreaker(kind)
+            return notYet("breaker");
+        });
+
+        register("show", a -> {
+            a.expectAtMost(0);
+            // TODO: e -> Result.ok(e.render())
+            return notYet("show");
+        });
+
+        register("stats", a -> {
+            a.expectAtMost(0);
+            // TODO: e -> Result.ok(e.stats().toString())
+            return notYet("stats");
+        });
+    }
+
+    /** UC5: find "q" [word] · replace-first "old" "new" [word] · replace-all "old" "new" [word]. */
+    private void registerSearch() {
+        register("find", a -> {
+            String query = a.text(0);
+            boolean word = wordFlag(a, 1);
+            // TODO: e -> e.find(query, word ? new WholeWordMatch() : new SubstringMatch())
+            return notYet("find");
+        });
+
+        register("replace-first", a -> {
+            String query = a.text(0);
+            String replacement = a.text(1);
+            boolean word = wordFlag(a, 2);
+            // TODO: e -> e.replaceFirst(query, replacement, strategy(word))
+            return notYet("replace-first");
+        });
+
+        register("replace-all", a -> {
+            String query = a.text(0);
+            String replacement = a.text(1);
+            boolean word = wordFlag(a, 2);
+            // TODO: e -> e.replaceAll(query, replacement, strategy(word))
+            return notYet("replace-all");
+        });
+    }
+
+    /** UC6: macro record/end/play · run &lt;file&gt; · quit. None of these are recorded (1b). */
+    private void registerAutomation() {
+        register("macro record", a -> {
+            String name = a.word(0);
+            a.expectAtMost(1);
+            // TODO: e -> e.macros().startRecording(name)
+            return notRecorded(notYet("macro record"));
+        });
+
+        register("macro end", a -> {
+            a.expectAtMost(0);
+            // TODO: e -> e.macros().endRecording()
+            return notRecorded(notYet("macro end"));
+        });
+
+        register("macro play", a -> {
+            String name = a.word(0);
+            a.expectAtMost(1);
+            // TODO: e -> e.macros().play(name, e)
+            return notRecorded(notYet("macro play"));
+        });
+
+        register("run", a -> {
+            String file = a.isQuoted(0) ? a.text(0) : a.word(0);
+            a.expectAtMost(1);
+            // TODO: e -> new ScriptRunner(this, ...).run(Path.of(file), e)
+            return notRecorded(notYet("run"));
+        });
+
+        register("quit", a -> {
+            a.expectAtMost(0);
+            return notRecorded(e -> Result.quit("Goodbye"));
+        });
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // Parsing
+    // ---------------------------------------------------------------------------------------
+
+    /**
+     * Parses one command line.
+     *
+     * @param line the text the user typed
+     * @return the action, ready to run
+     * @throws ParseException with a one-line message if the verb is unknown or an argument is
+     *     missing or malformed
+     */
+    public Action parse(String line) throws ParseException {
+        if (line == null || line.isBlank()) {
+            throw new ParseException("empty command");
+        }
+        Tokens all = Tokens.parse(line);
+        if (all.isQuoted(0)) {
+            throw new ParseException("a command must start with a verb, not quoted text");
+        }
+        String first = all.word(0);
+
+        if (all.count() >= 2 && !all.isQuoted(1)) {
+            ActionFactory two = factories.get(first + " " + all.word(1));
+            if (two != null) {
+                return two.create(all.from(2));
+            }
+        }
+        ActionFactory one = factories.get(first);
+        if (one != null) {
+            return one.create(all.from(1));
+        }
+        if (prefixes.contains(first)) {
+            if (all.count() < 2 || all.isQuoted(1)) {
+                throw new ParseException("'" + first + "' needs one of: "
+                        + String.join(", ", secondWords(first)));
+            }
+            throw new ParseException("unknown command '" + first + " " + all.word(1)
+                    + "'; '" + first + "' takes: " + String.join(", ", secondWords(first)));
+        }
+        throw new ParseException("unknown command '" + first + "'");
+    }
+
+    /** @return every registered verb, in registration order */
+    public Set<String> verbs() {
+        return Collections.unmodifiableSet(factories.keySet());
+    }
+
+    // ---------------------------------------------------------------------------------------
+    // Helpers
+    // ---------------------------------------------------------------------------------------
+
+    private void register(String verb, ActionFactory factory) {
+        factories.put(verb, factory);
+        int space = verb.indexOf(' ');
+        if (space > 0) {
+            prefixes.add(verb.substring(0, space));
+        }
+    }
+
+    private Set<String> secondWords(String first) {
+        Set<String> out = new TreeSet<>();
+        for (String verb : factories.keySet()) {
+            if (verb.startsWith(first + " ")) {
+                out.add(verb.substring(first.length() + 1));
+            }
+        }
+        return out;
+    }
+
+    /**
+     * Parses {@code <attr> <value>} starting at token {@code i}: {@code bold on|off},
+     * {@code italic on|off}, {@code font "Name"}, {@code size n}, {@code color name|#RRGGBB}.
+     * Value ranges (size 6-72, known colour names) are checked by FormatChange, not here.
+     *
+     * @return {attribute, value}
+     */
+    private static String[] formatChange(Tokens a, int i) throws ParseException {
+        String attr = a.word(i);
+        String value;
+        switch (attr) {
+            case "bold", "italic" -> value = oneOf(a, i + 1, attr, TOGGLE_VALUES);
+            case "font" -> value = a.text(i + 1);
+            case "size" -> value = Integer.toString(a.number(i + 1));
+            case "color" -> value = a.word(i + 1);
+            default -> throw new ParseException("unknown format attribute '" + attr
+                    + "'; use bold, italic, font, size or color");
+        }
+        a.expectAtMost(i + 2);
+        return new String[] {attr, value};
+    }
+
+    /** Reads a bare word that must be one of {@code allowed}. */
+    private static String oneOf(Tokens a, int i, String what, Set<String> allowed)
+            throws ParseException {
+        String value = a.word(i);
+        if (!allowed.contains(value)) {
+            throw new ParseException(what + " must be one of " + new TreeSet<>(allowed)
+                    + ", got '" + value + "'");
+        }
+        return value;
+    }
+
+    /**
+     * Reads the optional {@code word} flag at token {@code i}, rejecting anything else there
+     * and anything after it.
+     */
+    private static boolean wordFlag(Tokens a, int i) throws ParseException {
+        if (a.count() <= i) {
+            return false;
+        }
+        if (a.isQuoted(i) || !a.word(i).equals("word")) {
+            throw new ParseException("unexpected argument; the only option here is 'word'");
+        }
+        a.expectAtMost(i + 1);
+        return true;
+    }
+
+    /** An action for a verb whose engine support has not landed yet. */
+    private static Action notYet(String verb) {
+        return e -> Result.error("'" + verb + "' is not available yet");
+    }
+
+    /** Wraps an action so macros do not record it (UC6 alternate flow 1b). */
+    private static Action notRecorded(Action inner) {
+        return new Action() {
+            @Override
+            public Result run(Editor e) {
+                return inner.run(e);
+            }
+
+            @Override
+            public boolean recordable() {
+                return false;
+            }
+        };
+    }
+}
