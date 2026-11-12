@@ -1,6 +1,7 @@
 package edu.arizona.ece373.editor.history;
 
 import edu.arizona.ece373.editor.model.Document;
+import edu.arizona.ece373.editor.model.DocumentEvent;
 import edu.arizona.ece373.editor.model.EditException;
 import edu.arizona.ece373.editor.model.FormattedText;
 import edu.arizona.ece373.editor.model.Section;
@@ -11,7 +12,6 @@ public final class AddSectionCommand implements EditCommand {
 
     private final SectionPath parentPath;
     private final String title;
-    private Section parent;
     private Section added;
     private SectionPath addedPath;
 
@@ -34,17 +34,20 @@ public final class AddSectionCommand implements EditCommand {
 
     @Override
     public void execute(Document d) {
-        parent = d.section(parentPath);
+        Section parent = d.section(parentPath);
         if (added == null) {
             added = new Section(new FormattedText(title));
         }
         parent.add(added);
         addedPath = SectionPath.child(parentPath, parent.subsections().size());
+        d.fireChanged(new DocumentEvent(DocumentEvent.Kind.STRUCTURE));
     }
 
     @Override
     public void undo(Document d) {
-        parent.remove(added);
+        // Look the nodes up again: a checkpoint restore since execute may have replaced them.
+        d.section(parentPath).remove(d.section(addedPath));
+        d.fireChanged(new DocumentEvent(DocumentEvent.Kind.STRUCTURE));
     }
 
     /** @return the path the section was added at, or null before {@link #execute} */

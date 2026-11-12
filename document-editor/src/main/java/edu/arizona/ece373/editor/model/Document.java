@@ -2,17 +2,64 @@ package edu.arizona.ece373.editor.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
- * The single document: owns the untitled root {@link Section} and finds paragraphs and
- * sections.
- *
- * <p>TODO: listeners ({@code addListener}, {@code fireChanged}) once DocumentListener and
- * DocumentEvent land; {@code createMemento}/{@code restore} are Jack's (week of Nov 9).
+ * The single document: owns the untitled root {@link Section}, finds paragraphs and
+ * sections, notifies {@link DocumentListener}s (Observer subject), and saves and restores
+ * itself through {@link DocumentMemento}s (Memento originator).
  */
 public final class Document {
 
-    private final Section root = new Section(new FormattedText(""));
+    private Section root = new Section(new FormattedText(""));
+    private final List<DocumentListener> listeners = new ArrayList<>();
+
+    /**
+     * Registers a listener. Listeners are called in the order they were added. Listeners
+     * belong to the document, not its content, so they stay registered across
+     * {@link #restore}.
+     *
+     * @param l the listener; not null
+     */
+    public void addListener(DocumentListener l) {
+        listeners.add(Objects.requireNonNull(l, "listener"));
+    }
+
+    /**
+     * Tells every listener, in registration order, that the document changed. Every
+     * {@code EditCommand} calls this at the end of execute and undo.
+     *
+     * @param e what happened
+     */
+    public void fireChanged(DocumentEvent e) {
+        for (DocumentListener l : List.copyOf(listeners)) {
+            l.documentChanged(e);
+        }
+    }
+
+    /**
+     * Saves the whole document.
+     *
+     * @return an independent copy; later edits to this document never change it
+     */
+    public DocumentMemento createMemento() {
+        return new DocumentMemento(root.deepCopy());
+    }
+
+    /**
+     * Replaces the whole content with a saved copy. The memento itself is not consumed or
+     * changed, so it can be restored again later. Does not notify listeners; the command
+     * that calls this fires a {@link DocumentEvent.Kind#RESTORE} event.
+     *
+     * <p>Nodes obtained before a restore are no longer part of the document afterwards, so
+     * commands must look nodes up again (by path or number) rather than keep references
+     * across one.
+     *
+     * @param m a memento from {@link #createMemento}; not null
+     */
+    public void restore(DocumentMemento m) {
+        root = Objects.requireNonNull(m, "memento").snapshot().deepCopy();
+    }
 
     /** @return the untitled root section */
     public Section root() {

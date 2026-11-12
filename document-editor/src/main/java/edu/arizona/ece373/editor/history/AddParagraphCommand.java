@@ -1,6 +1,7 @@
 package edu.arizona.ece373.editor.history;
 
 import edu.arizona.ece373.editor.model.Document;
+import edu.arizona.ece373.editor.model.DocumentEvent;
 import edu.arizona.ece373.editor.model.FormattedText;
 import edu.arizona.ece373.editor.model.Paragraph;
 import edu.arizona.ece373.editor.model.Section;
@@ -11,7 +12,6 @@ public final class AddParagraphCommand implements EditCommand {
 
     private final SectionPath sectionPath;
     private final String text;
-    private Section section;
     private Paragraph added;
     private int number = -1;
 
@@ -31,17 +31,20 @@ public final class AddParagraphCommand implements EditCommand {
 
     @Override
     public void execute(Document d) {
-        section = d.section(sectionPath);
+        Section section = d.section(sectionPath);
         if (added == null) {
             added = new Paragraph(new FormattedText(text));
         }
         section.add(added);
         number = d.numberOf(added);
+        d.fireChanged(new DocumentEvent(DocumentEvent.Kind.STRUCTURE));
     }
 
     @Override
     public void undo(Document d) {
-        section.remove(added);
+        // Look the nodes up again: a checkpoint restore since execute may have replaced them.
+        d.section(sectionPath).remove(d.paragraph(number));
+        d.fireChanged(new DocumentEvent(DocumentEvent.Kind.STRUCTURE));
     }
 
     /** @return the paragraph's number after {@link #execute}, or -1 before */
