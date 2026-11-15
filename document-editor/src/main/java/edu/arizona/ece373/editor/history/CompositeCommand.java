@@ -74,8 +74,9 @@ public class CompositeCommand implements EditCommand{
         parts.add(c);
         }
 
-
-
+    /** @return the parts in execution order, read only */
+    public List<EditCommand> parts() {
+        return Collections.unmodifiableList(parts);
     }
 
 
