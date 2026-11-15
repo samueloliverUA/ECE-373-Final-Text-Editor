@@ -125,3 +125,18 @@ class HistoryTest {
 
         assertEquals(List.of("execute a", "execute b"), log);
     }
+
+    @Test
+    void validateChecksEveryPartAndChangesNothing() {
+        List<String> log = new ArrayList<>();
+        CompositeCommand all = new CompositeCommand("replace all");
+        all.add(new Step("a", log));
+        all.add(new Step("b", log));
+        all.add(new Step("c", log));
+
+        all.validate(null);
+
+        assertEquals(List.of("validate a", "validate b", "validate c"), log);
+    }
+
+
