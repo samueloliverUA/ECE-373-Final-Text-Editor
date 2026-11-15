@@ -57,5 +57,13 @@ class HistoryTest {
             }
         }
 
+        @Override
+        public void execute(Document d) {
+            if (failExecute) {
+                throw new IllegalStateException(id + " failed");
+            }
+            log.add("execute " + id);
+        }
+
 
 }
