@@ -70,5 +70,10 @@ class HistoryTest {
             log.add("undo " + id);
         }
 
+        @Override
+        public String describe() {
+            return id;
+        }
+
 
 }
