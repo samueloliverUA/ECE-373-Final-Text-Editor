@@ -139,4 +139,20 @@ class HistoryTest {
         assertEquals(List.of("validate a", "validate b", "validate c"), log);
     }
 
+    @Test
+    void failingPartRollsBackEarlierPartsAndRethrows() {
+        List<String> log = new ArrayList<>();
+        Step c = new Step("c", log);
+        c.failExecute = true;
+        CompositeCommand all = new CompositeCommand("replace all");
+        all.add(new Step("a", log));
+        all.add(new Step("b", log));
+        all.add(c);
+
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> all.execute(null));
+
+        assertEquals("c failed", e.getMessage());
+        assertEquals(List.of("execute a", "execute b", "undo b", "undo a"), log);
+    }
+
 
