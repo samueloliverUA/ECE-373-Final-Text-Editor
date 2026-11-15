@@ -45,5 +45,40 @@ import java.util.Objects;
 public class CompositeCommand implements EditCommand{
     private final String name;
     private final List<EditCommand> parts = new ArrayList<>();
+
+    /**
+     * @param name short name for messages, examples like {@code replace all} or {@code macro tidy}
+     */
+
+    public CompositeCommand(String name){
+
+        this.name=Objects.requireNonNull(name,"name");
+
+    }
+
+    /**
+     * Appends a part. It will run after every part added before it.
+     *
+     * @param c the part
+     * @throws IllegalArgumentException if {@code c} is null or this composite itself
+     */
+
+    public void add(EditCommand c){
+
+        if(c==null){
+            throw new IllegalArgumentException("part must not be null");
+        }
+        if(n==this) {
+            throw new IllegalArgumentException("a composite cannot contain itself");
+        }
+        parts.add(c);
+        }
+
+
+
+    }
+
+
+
 }
 
