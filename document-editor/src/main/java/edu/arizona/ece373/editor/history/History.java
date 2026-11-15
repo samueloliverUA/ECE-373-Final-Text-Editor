@@ -100,6 +100,21 @@ public final class History {
         }
     }
 
+    /**
+     * Undoes every command performed since {@link #beginGroup}, in reverse order, and discards the
+     * group, so the document is back to how it was before the group began.
+     *
+     * @throws IllegalStateException if no group is open
+     */
+    public void abortGroup() {
+        if (group == null) {
+            throw new IllegalStateException("abortGroup called with no open group");
+        }
+        CompositeCommand g = group;
+        group = null;
+        g.undo(doc);
+    }
+
     /** @return true if {@link #undo} would do something */
     public boolean canUndo() {
         return !undoStack.isEmpty();
