@@ -96,3 +96,17 @@ class HistoryTest {
         assertEquals(List.of("execute a", "execute b", "execute c"), log);
     }
 
+    @Test
+    void undoesPartsInReverseOrder() {
+        List<String> log = new ArrayList<>();
+        CompositeCommand all = new CompositeCommand("replace all");
+        all.add(new Step("a", log));
+        all.add(new Step("b", log));
+        all.add(new Step("c", log));
+
+        all.execute(null);
+        log.clear();
+        all.undo(null);
+
+        assertEquals(List.of("undo c", "undo b", "undo a"), log);
+    }
