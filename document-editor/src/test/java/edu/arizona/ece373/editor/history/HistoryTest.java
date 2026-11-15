@@ -180,3 +180,16 @@ class HistoryTest {
         assertEquals("replace all (3)", all.describe());
     }
 
+    @Test
+    void emptyCompositeDoesNothing() {
+        CompositeCommand empty = new CompositeCommand("macro tidy");
+
+        empty.validate(null);
+        empty.execute(null);
+        empty.undo(null);
+
+        assertTrue(empty.isEmpty());
+        assertEquals(0, empty.size());
+        assertEquals("macro tidy (0)", empty.describe());
+    }
+
