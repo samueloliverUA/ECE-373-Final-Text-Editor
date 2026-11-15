@@ -193,3 +193,17 @@ class HistoryTest {
         assertEquals("macro tidy (0)", empty.describe());
     }
 
+    @Test
+    void sizeAndPartsReflectAdds() {
+        List<String> log = new ArrayList<>();
+        Step a = new Step("a", log);
+        Step b = new Step("b", log);
+        CompositeCommand all = new CompositeCommand("replace all");
+        all.add(a);
+        all.add(b);
+
+        assertFalse(all.isEmpty());
+        assertEquals(2, all.size());
+        assertSame(a, all.parts().get(0));
+        assertSame(b, all.parts().get(1));
+    }
