@@ -18,3 +18,44 @@
  *
  * (Placeholder only - no code yet. Replace this comment with the class and its JavaDoc.)
  */
+
+package edu.arizona.ece373.editor.history;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import edu.arizona.ece373.editor.model.Document;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+// Tests History and CompositeCommand
+class HistoryTest {
+
+    private static final class Step implements EditCommand {
+
+    }
+
+    @Nested
+    class CompositeCommandTests {
+
+        private final String id;
+        private final List<String> log;
+        private boolean failValidate;
+        private boolean failExecute;
+
+        Step(String id, List<String> log) {
+            this.id = id;
+            this.log = log;
+        }
+        @Override
+        public void validate(Document d) {
+            log.add("validate " + id);
+            if (failValidate) {
+                throw new IllegalStateException(id + " is invalid");
+            }
+        }
+
+
+}
