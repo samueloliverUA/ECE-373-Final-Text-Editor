@@ -65,5 +65,10 @@ class HistoryTest {
             log.add("execute " + id);
         }
 
+        @Override
+        public void undo(Document d) {
+            log.add("undo " + id);
+        }
+
 
 }
