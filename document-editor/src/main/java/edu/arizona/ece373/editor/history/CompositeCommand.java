@@ -131,6 +131,13 @@ public class CompositeCommand implements EditCommand{
         }
     }
 
+    /** @return e.g. {@code replace all (6)}, used in messages such as {@code Undid: replace all (6)} */
+    @Override
+    public String describe() {
+        return name + " (" + parts.size() + ")";
+    }
+}
+
 
 
 }
