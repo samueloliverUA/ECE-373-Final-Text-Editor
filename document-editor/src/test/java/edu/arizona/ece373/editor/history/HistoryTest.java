@@ -110,3 +110,18 @@ class HistoryTest {
 
         assertEquals(List.of("undo c", "undo b", "undo a"), log);
     }
+
+    @Test
+    void redoAfterUndoRunsPartsInOrderAgain() {
+        List<String> log = new ArrayList<>();
+        CompositeCommand all = new CompositeCommand("replace all");
+        all.add(new Step("a", log));
+        all.add(new Step("b", log));
+
+        all.execute(null);
+        all.undo(null);
+        log.clear();
+        all.execute(null);
+
+        assertEquals(List.of("execute a", "execute b"), log);
+    }
