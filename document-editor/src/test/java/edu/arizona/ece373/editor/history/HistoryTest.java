@@ -169,4 +169,14 @@ class HistoryTest {
         assertTrue(log.isEmpty());
     }
 
+    @Test
+    void describeGivesNameAndPartCount() {
+        List<String> log = new ArrayList<>();
+        CompositeCommand all = new CompositeCommand("replace all");
+        all.add(new Step("a", log));
+        all.add(new Step("b", log));
+        all.add(new Step("c", log));
+
+        assertEquals("replace all (3)", all.describe());
+    }
 
