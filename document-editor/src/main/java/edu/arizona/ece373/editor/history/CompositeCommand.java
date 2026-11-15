@@ -22,9 +22,9 @@
  * (Placeholder only - no code yet. Replace this comment with the class and its JavaDoc.)
  */
 
-package edu.arizona.edu373.editor.history;
+package edu.arizona.ece373.editor.history;
 
-import edu.arizona.edu.ece373.editor.model.Document;
+import edu.arizona.ece373.editor.model.Document;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -68,7 +68,7 @@ public class CompositeCommand implements EditCommand{
         if(c==null){
             throw new IllegalArgumentException("part must not be null");
         }
-        if(n==this) {
+        if(c==this) {
             throw new IllegalArgumentException("a composite cannot contain itself");
         }
         parts.add(c);
@@ -101,7 +101,28 @@ public class CompositeCommand implements EditCommand{
         }
     }
 
-
+    /**
+     * Executes every part in order. Called after {@link #validate} succeeded, and again on redo.
+     *
+     * <p>Safety net: if a part still fails, the parts already executed are undone in reverse order
+     * before the exception is rethrown, so the document is never left half-changed.
+     */
+    @Override
+    public void execute(Document d) {
+        int done = 0;
+        try {
+            for (int i=0; i < parts.size();i++) {
+                EditCommand part = parts.get(i);
+                part.execute(d);
+                done++;
+            }
+        } catch (RuntimeException e) {
+            for (int i = done - 1; i >= 0; i--) {
+                parts.get(i).undo(d);
+            }
+            throw e;
+        }
+    }
 
 
 
