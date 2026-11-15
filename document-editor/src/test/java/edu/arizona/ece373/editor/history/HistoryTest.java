@@ -34,12 +34,6 @@ import org.junit.jupiter.api.Test;
 class HistoryTest {
 
     private static final class Step implements EditCommand {
-
-    }
-
-    @Nested
-    class CompositeCommandTests {
-
         private final String id;
         private final List<String> log;
         private boolean failValidate;
@@ -76,12 +70,9 @@ class HistoryTest {
         }
     }
 
-    private final Document doc = new Document();
-    private List<String> log;
-    private CompositeCommand all;
-    private Step a;
-    private Step b;
-    private Step c;
+
+    @Nested
+    class CompositeCommandTests {
 
     @Test
     void executesPartsInOrder() {
@@ -138,6 +129,22 @@ class HistoryTest {
 
         assertEquals(List.of("validate a", "validate b", "validate c"), log);
     }
+
+        @Test
+        void validateStopsAtTheFirstInvalidPart() {
+            List<String> log = new ArrayList<>();
+            Step b = new Step("b", log);
+            b.failValidate = true;
+            CompositeCommand all = new CompositeCommand("replace all");
+            all.add(new Step("a", log));
+            all.add(b);
+            all.add(new Step("c", log));
+
+            IllegalStateException e = assertThrows(IllegalStateException.class, () -> all.validate(null));
+
+            assertEquals("b is invalid", e.getMessage());
+            assertEquals(List.of("validate a", "validate b"), log);
+        }
 
     @Test
     void failingPartRollsBackEarlierPartsAndRethrows() {
