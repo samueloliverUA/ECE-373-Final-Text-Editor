@@ -83,6 +83,23 @@ public final class History {
         group = new CompositeCommand(name);
     }
 
+    /**
+     * Closes the open group and records it as one entry. An empty group records nothing.
+     *
+     * @throws IllegalStateException if no group is open
+     */
+    public void endGroup() {
+        if (group == null) {
+            throw new IllegalStateException("endGroup called with no open group");
+        }
+        CompositeCommand g = group;
+        group = null;
+        if (!g.isEmpty()) {
+            undoStack.push(g);
+            redoStack.clear();
+        }
+    }
+
     /** @return true if {@link #undo} would do something */
     public boolean canUndo() {
         return !undoStack.isEmpty();
