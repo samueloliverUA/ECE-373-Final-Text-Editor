@@ -257,4 +257,23 @@ class HistoryTest {
                     "undo c", "undo b", "undo a"), log);
         }
     }
+
+    @Nested
+    class HistoryTests {
+
+        @Test
+        void undoAndRedoGoInOrder() {
+            List<String> log = new ArrayList<>();
+            History h = new History(null);
+            h.perform(new Step("a", log));
+            h.perform(new Step("b", log));
+
+            assertEquals("Undid: b", h.undo());
+            assertEquals("Undid: a", h.undo());
+            assertEquals("Redid: a", h.redo());
+            assertEquals("Redid: b", h.redo());
+            assertEquals(List.of("validate a", "execute a", "validate b", "execute b",
+                    "undo b", "undo a", "execute a", "execute b"), log);
+        }
+    }
 }
