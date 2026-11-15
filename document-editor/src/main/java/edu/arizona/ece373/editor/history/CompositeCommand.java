@@ -89,5 +89,21 @@ public class CompositeCommand implements EditCommand{
         return parts.isEmpty();
     }
 
+    /**
+     * Validates every part, in order, before anything is changed. The first failure is thrown and
+     * nothing is executed, so a failed Replace All never partly modifies the document (6.1.4).
+     */
+    @Override
+    public void validate(Document d) {
+        for (int i=0; i < parts.size();i++) {
+            EditCommand part = parts.get(i);
+            part.validate(d);
+        }
+    }
+
+
+
+
+
 }
 
