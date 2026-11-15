@@ -19,12 +19,12 @@
  *
  * TESTED BY: HistoryTest, ReplaceAllTest, MacroLibraryTest
  *
- * (Placeholder only - no code yet. Replace this comment with the class and its JavaDoc.)
  */
 
 package edu.arizona.ece373.editor.history;
 
 import edu.arizona.ece373.editor.model.Document;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -42,7 +42,7 @@ import java.util.Objects;
  * first, so a part never shifts the offsets of a part that runs after it.
  */
 
-public class CompositeCommand implements EditCommand{
+public class CompositeCommand implements EditCommand {
     private final String name;
     private final List<EditCommand> parts = new ArrayList<>();
 
@@ -50,9 +50,9 @@ public class CompositeCommand implements EditCommand{
      * @param name short name for messages, examples like {@code replace all} or {@code macro tidy}
      */
 
-    public CompositeCommand(String name){
+    public CompositeCommand(String name) {
 
-        this.name=Objects.requireNonNull(name,"name");
+        this.name = Objects.requireNonNull(name, "name");
 
     }
 
@@ -63,28 +63,34 @@ public class CompositeCommand implements EditCommand{
      * @throws IllegalArgumentException if {@code c} is null or this composite itself
      */
 
-    public void add(EditCommand c){
+    public void add(EditCommand c) {
 
-        if(c==null){
+        if (c == null) {
             throw new IllegalArgumentException("part must not be null");
         }
-        if(c==this) {
+        if (c == this) {
             throw new IllegalArgumentException("a composite cannot contain itself");
         }
         parts.add(c);
-        }
+    }
 
-    /** @return the parts in execution order, read only */
+    /**
+     * @return the parts in execution order, read only
+     */
     public List<EditCommand> parts() {
         return Collections.unmodifiableList(parts);
     }
 
-    /** @return the number of parts */
+    /**
+     * @return the number of parts
+     */
     public int size() {
         return parts.size();
     }
 
-    /** @return true if no part has been added (History skips an empty group) */
+    /**
+     * @return true if no part has been added (History skips an empty group)
+     */
     public boolean isEmpty() {
         return parts.isEmpty();
     }
@@ -95,7 +101,7 @@ public class CompositeCommand implements EditCommand{
      */
     @Override
     public void validate(Document d) {
-        for (int i=0; i < parts.size();i++) {
+        for (int i = 0; i < parts.size(); i++) {
             EditCommand part = parts.get(i);
             part.validate(d);
         }
@@ -111,7 +117,7 @@ public class CompositeCommand implements EditCommand{
     public void execute(Document d) {
         int done = 0;
         try {
-            for (int i=0; i < parts.size();i++) {
+            for (int i = 0; i < parts.size(); i++) {
                 EditCommand part = parts.get(i);
                 part.execute(d);
                 done++;
@@ -123,7 +129,10 @@ public class CompositeCommand implements EditCommand{
             throw e;
         }
     }
-    /** Undoes every part in reverse order, so each part sees the document it left behind. */
+
+    /**
+     * Undoes every part in reverse order, so each part sees the document it left behind.
+     */
     @Override
     public void undo(Document d) {
         for (int i = parts.size() - 1; i >= 0; i--) {
@@ -131,11 +140,12 @@ public class CompositeCommand implements EditCommand{
         }
     }
 
-    /** @return e.g. {@code replace all (6)}, used in messages such as {@code Undid: replace all (6)} */
+    /**
+     * @return e.g. {@code replace all (6)}, used in messages such as {@code Undid: replace all (6)}
+     */
     @Override
     public String describe() {
         return name + " (" + parts.size() + ")";
-        }
     }
 }
 
