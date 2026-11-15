@@ -275,5 +275,15 @@ class HistoryTest {
             assertEquals(List.of("validate a", "execute a", "validate b", "execute b",
                     "undo b", "undo a", "execute a", "execute b"), log);
         }
+        @Test
+        void nothingToUndoOrRedoGivesAMessage() {
+            History h = new History(null);
+
+            assertEquals("Nothing to undo", h.undo());
+            assertEquals("Nothing to redo", h.redo());
+            assertFalse(h.canUndo());
+            assertFalse(h.canRedo());
+        }
+
     }
 }
