@@ -49,6 +49,35 @@ class HistoryTest {
         }
     }
 
+    /** A fake EditCommand that adds an amount to a shared number, so tests can check real state. */
+    private static final class Add implements EditCommand {
+        private final int[] total;
+        private final int amount;
+
+        Add(int[] total, int amount) {
+            this.total = total;
+            this.amount = amount;
+        }
+
+        @Override
+        public void validate(Document d) {
+        }
+
+        @Override
+        public void execute(Document d) {
+            total[0] += amount;
+        }
+
+        @Override
+        public void undo(Document d) {
+            total[0] -= amount;
+        }
+
+        @Override
+        public String describe() {
+            return "add " + amount;
+        }
+    }
 
     @Nested
     class CompositeCommandTests {
