@@ -79,6 +79,10 @@ public class CompositeCommand implements EditCommand{
         return Collections.unmodifiableList(parts);
     }
 
+    /** @return the number of parts */
+    public int size() {
+        return parts.size();
+    }
 
 
 }
