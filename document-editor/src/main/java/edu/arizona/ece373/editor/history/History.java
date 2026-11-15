@@ -124,4 +124,9 @@ public final class History {
     public boolean canRedo() {
         return !redoStack.isEmpty();
     }
+
+    /** @return true between {@link #beginGroup} and {@link #endGroup} or {@link #abortGroup} */
+    public boolean isGroupOpen() {
+        return group != null;
+    }
 }
