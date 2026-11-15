@@ -84,6 +84,10 @@ public class CompositeCommand implements EditCommand{
         return parts.size();
     }
 
+    /** @return true if no part has been added (History skips an empty group) */
+    public boolean isEmpty() {
+        return parts.isEmpty();
+    }
 
 }
 
