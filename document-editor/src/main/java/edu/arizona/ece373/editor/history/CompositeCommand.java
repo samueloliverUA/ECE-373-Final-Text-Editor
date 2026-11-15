@@ -135,10 +135,7 @@ public class CompositeCommand implements EditCommand{
     @Override
     public String describe() {
         return name + " (" + parts.size() + ")";
+        }
     }
-}
-
-
-
 }
 
