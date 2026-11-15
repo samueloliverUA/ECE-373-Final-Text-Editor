@@ -15,7 +15,7 @@ public final class History {
     private final Document doc;
     private final Deque<EditCommand> undoStack = new ArrayDeque<>();
     private final Deque<EditCommand> redoStack = new ArrayDeque<>();
-
+    private CompositeCommand group;
     /**
      * @param doc the document every command runs against
      */
@@ -33,12 +33,20 @@ public final class History {
     public void perform(EditCommand c) {
         c.validate(doc);
         c.execute(doc);
-        undoStack.push(c);
-        redoStack.clear();
+        if (group != null) {
+            group.add(c);
+        }
+        else {
+            undoStack.push(c);
+            redoStack.clear();
+        }
     }
 
     /** @return a message saying what was undone, or that there was nothing to undo */
     public String undo() {
+        if (group != null) {
+            throw new IllegalStateException("cannot undo while a group is open");
+        }
         if (undoStack.isEmpty()) {
             return "Nothing to undo";
         }
@@ -50,6 +58,9 @@ public final class History {
 
     /** @return a message saying what was redone, or that there was nothing to redo */
     public String redo() {
+        if (group != null) {
+            throw new IllegalStateException("cannot redo while a group is open");
+        }
         if (redoStack.isEmpty()) {
             return "Nothing to redo";
         }
@@ -57,6 +68,19 @@ public final class History {
         c.execute(doc);
         undoStack.push(c);
         return "Redid: " + c.describe();
+    }
+
+    /**
+     * Opens a group: every command performed until {@link #endGroup} becomes one history entry.
+     *
+     * @param name the group's name for messages, e.g. {@code macro tidy}
+     * @throws IllegalStateException if a group is already open (groups do not nest)
+     */
+    public void beginGroup(String name) {
+        if (group != null) {
+            throw new IllegalStateException("a group is already open");
+        }
+        group = new CompositeCommand(name);
     }
 
     /** @return true if {@link #undo} would do something */
