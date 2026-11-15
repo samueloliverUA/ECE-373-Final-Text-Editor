@@ -215,3 +215,11 @@ class HistoryTest {
 
         assertThrows(UnsupportedOperationException.class, () -> all.parts().clear());
     }
+
+    @Test
+    void rejectsNullAndItself() {
+        CompositeCommand all = new CompositeCommand("replace all");
+
+        assertThrows(IllegalArgumentException.class, () -> all.add(null));
+        assertThrows(IllegalArgumentException.class, () -> all.add(all));
+    }
