@@ -21,3 +21,29 @@
  *
  * (Placeholder only - no code yet. Replace this comment with the class and its JavaDoc.)
  */
+
+package edu.arizona.edu373.editor.history;
+
+import edu.arizona.edu.ece373.editor.model.Document;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * A list of {@link EditCommand}s that acts as one (Composite applied to commands).
+ *
+ * <p>Replace All builds one of these with one {@code ReplaceTextCommand} part per match, and
+ * {@code History.beginGroup} collects a macro replay into one. History treats the whole list as a
+ * single entry, so one undo reverses every part (6.8.4, 6.8.7).
+ *
+ * <p>Parts run in the order they were added and are undone in reverse order. Callers that build a
+ * composite whose parts touch the same paragraph (Replace All) add them from the last match to the
+ * first, so a part never shifts the offsets of a part that runs after it.
+ */
+
+public class CompositeCommand implements EditCommand{
+    private final String name;
+    private final List<EditCommand> parts = new ArrayList<>();
+}
+
