@@ -74,6 +74,25 @@ class HistoryTest {
         public String describe() {
             return id;
         }
+    }
 
+    private final Document doc = new Document();
+    private List<String> log;
+    private CompositeCommand all;
+    private Step a;
+    private Step b;
+    private Step c;
 
-}
+    @Test
+    void executesPartsInOrder() {
+        List<String> log = new ArrayList<>();
+        CompositeCommand all = new CompositeCommand("replace all");
+        all.add(new Step("a", log));
+        all.add(new Step("b", log));
+        all.add(new Step("c", log));
+
+        all.execute(null);
+
+        assertEquals(List.of("execute a", "execute b", "execute c"), log);
+    }
+
