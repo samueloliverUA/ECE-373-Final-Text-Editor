@@ -207,3 +207,11 @@ class HistoryTest {
         assertSame(a, all.parts().get(0));
         assertSame(b, all.parts().get(1));
     }
+
+    @Test
+    void partsListIsReadOnly() {
+        CompositeCommand all = new CompositeCommand("replace all");
+        all.add(new Step("a", new ArrayList<>()));
+
+        assertThrows(UnsupportedOperationException.class, () -> all.parts().clear());
+    }
