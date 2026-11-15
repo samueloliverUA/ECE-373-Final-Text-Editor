@@ -155,4 +155,18 @@ class HistoryTest {
         assertEquals(List.of("execute a", "execute b", "undo b", "undo a"), log);
     }
 
+    @Test
+    void firstPartFailingUndoesNothing() {
+        List<String> log = new ArrayList<>();
+        Step a = new Step("a", log);
+        a.failExecute = true;
+        CompositeCommand all = new CompositeCommand("replace all");
+        all.add(a);
+        all.add(new Step("b", log));
+
+        assertThrows(IllegalStateException.class, () -> all.execute(null));
+
+        assertTrue(log.isEmpty());
+    }
+
 
