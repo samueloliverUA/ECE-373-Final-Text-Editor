@@ -123,6 +123,13 @@ public class CompositeCommand implements EditCommand{
             throw e;
         }
     }
+    /** Undoes every part in reverse order, so each part sees the document it left behind. */
+    @Override
+    public void undo(Document d) {
+        for (int i = parts.size() - 1; i >= 0; i--) {
+            parts.get(i).undo(d);
+        }
+    }
 
 
 
