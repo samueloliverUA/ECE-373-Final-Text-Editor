@@ -223,3 +223,22 @@ class HistoryTest {
         assertThrows(IllegalArgumentException.class, () -> all.add(null));
         assertThrows(IllegalArgumentException.class, () -> all.add(all));
     }
+
+
+    @Test
+    void nestedCompositeUndoesAsOneUnit() {
+        List<String> log = new ArrayList<>();
+        CompositeCommand inner = new CompositeCommand("replace all");
+        inner.add(new Step("a", log));
+        inner.add(new Step("b", log));
+        CompositeCommand outer = new CompositeCommand("macro tidy");
+        outer.add(inner);
+        outer.add(new Step("c", log));
+
+        outer.execute(null);
+        outer.undo(null);
+
+        assertEquals(List.of("execute a", "execute b", "execute c",
+                "undo c", "undo b", "undo a"), log);
+    }
+}
