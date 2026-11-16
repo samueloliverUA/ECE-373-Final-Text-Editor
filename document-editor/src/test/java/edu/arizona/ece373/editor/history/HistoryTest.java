@@ -411,4 +411,6 @@ class HistoryTest {
             assertThrows(IllegalStateException.class, () -> h.beginGroup("inner"));
         }
     }
+
+    
 }
