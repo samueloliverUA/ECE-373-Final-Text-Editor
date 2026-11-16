@@ -349,5 +349,19 @@ class HistoryTest {
             assertEquals("Redid: macro tidy (3)", h.redo());
             assertEquals(6, total[0]);
         }
+        @Test
+        void abortGroupRestoresTheState() {
+            int[] total = {10};
+            History h = new History(null);
+            h.beginGroup("macro tidy");
+            h.perform(new Add(total, 1));
+            h.perform(new Add(total, 2));
+
+            h.abortGroup();
+
+            assertEquals(10, total[0]);
+            assertFalse(h.isGroupOpen());
+            assertFalse(h.canUndo());
+        }
     }
 }
