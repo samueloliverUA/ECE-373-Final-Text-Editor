@@ -310,5 +310,26 @@ class HistoryTest {
             assertEquals(List.of("validate bad"), log);
             assertFalse(h.canUndo());
         }
+        @Test
+        void thousandUndos() {
+            int[] total = {0};
+            History h = new History(null);
+            for (int i = 0; i < 1000; i++) {
+                h.perform(new Add(total, 1));
+            }
+            assertEquals(1000, total[0]);
+
+            for (int i = 0; i < 1000; i++) {
+                h.undo();
+            }
+            assertEquals(0, total[0]);
+            assertFalse(h.canUndo());
+
+            for (int i = 0; i < 1000; i++) {
+                h.redo();
+            }
+            assertEquals(1000, total[0]);
+            assertFalse(h.canRedo());
+        }
     }
 }
