@@ -379,5 +379,19 @@ class HistoryTest {
             assertEquals(0, total[0]);
             assertFalse(h.canUndo());
         }
+        @Test
+        void emptyGroupAddsNothing() {
+            int[] total = {0};
+            History h = new History(null);
+            h.perform(new Add(total, 1));
+            h.undo();
+
+            h.beginGroup("macro empty");
+            h.endGroup();
+
+            assertFalse(h.canUndo());
+            assertTrue(h.canRedo());
+        }
+
     }
 }
