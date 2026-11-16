@@ -298,5 +298,17 @@ class HistoryTest {
             assertEquals("Nothing to redo", h.redo());
             assertEquals(5, total[0]);
         }
+        @Test
+        void failedValidateIsNotExecutedOrPushed() {
+            List<String> log = new ArrayList<>();
+            Step bad = new Step("bad", log);
+            bad.failValidate = true;
+            History h = new History(null);
+
+            assertThrows(IllegalStateException.class, () -> h.perform(bad));
+
+            assertEquals(List.of("validate bad"), log);
+            assertFalse(h.canUndo());
+        }
     }
 }
