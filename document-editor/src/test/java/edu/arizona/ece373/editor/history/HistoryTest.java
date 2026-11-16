@@ -284,6 +284,19 @@ class HistoryTest {
             assertFalse(h.canUndo());
             assertFalse(h.canRedo());
         }
+        @Test
+        void newEditAfterUndoClearsRedo() {
+            int[] total = {0};
+            History h = new History(null);
+            h.perform(new Add(total, 1));
+            h.undo();
+            assertTrue(h.canRedo());
 
+            h.perform(new Add(total, 5));
+
+            assertFalse(h.canRedo());
+            assertEquals("Nothing to redo", h.redo());
+            assertEquals(5, total[0]);
+        }
     }
 }
