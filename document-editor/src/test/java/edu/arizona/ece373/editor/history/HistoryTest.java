@@ -412,5 +412,5 @@ class HistoryTest {
         }
     }
 
-    
+
 }
