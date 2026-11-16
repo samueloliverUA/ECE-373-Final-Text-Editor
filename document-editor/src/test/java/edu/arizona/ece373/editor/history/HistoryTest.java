@@ -401,5 +401,14 @@ class HistoryTest {
             assertThrows(IllegalStateException.class, h::undo);
             assertThrows(IllegalStateException.class, h::redo);
         }
+        @Test
+        void groupsDoNotNestAndMustBeOpenToClose() {
+            History h = new History(null);
+
+            assertThrows(IllegalStateException.class, h::endGroup);
+            assertThrows(IllegalStateException.class, h::abortGroup);
+            h.beginGroup("outer");
+            assertThrows(IllegalStateException.class, () -> h.beginGroup("inner"));
+        }
     }
 }
