@@ -363,5 +363,21 @@ class HistoryTest {
             assertFalse(h.isGroupOpen());
             assertFalse(h.canUndo());
         }
+        @Test
+        void failingStepThenAbortLeavesDocumentAsBefore() {
+            int[] total = {0};
+            List<String> log = new ArrayList<>();
+            Step bad = new Step("bad", log);
+            bad.failValidate = true;
+            History h = new History(null);
+            h.beginGroup("macro tidy");
+            h.perform(new Add(total, 4));
+
+            assertThrows(IllegalStateException.class, () -> h.perform(bad));
+            h.abortGroup();
+
+            assertEquals(0, total[0]);
+            assertFalse(h.canUndo());
+        }
     }
 }
