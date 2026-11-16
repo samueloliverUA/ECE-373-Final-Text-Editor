@@ -331,5 +331,23 @@ class HistoryTest {
             assertEquals(1000, total[0]);
             assertFalse(h.canRedo());
         }
+        @Test
+        void groupIsOneEntry() {
+            int[] total = {0};
+            History h = new History(null);
+            h.beginGroup("macro tidy");
+            h.perform(new Add(total, 1));
+            h.perform(new Add(total, 2));
+            h.perform(new Add(total, 3));
+            h.endGroup();
+            assertEquals(6, total[0]);
+
+            assertEquals("Undid: macro tidy (3)", h.undo());
+
+            assertEquals(0, total[0]);
+            assertFalse(h.canUndo());
+            assertEquals("Redid: macro tidy (3)", h.redo());
+            assertEquals(6, total[0]);
+        }
     }
 }
