@@ -393,5 +393,13 @@ class HistoryTest {
             assertTrue(h.canRedo());
         }
 
+        @Test
+        void undoAndRedoAreRejectedWhileAGroupIsOpen() {
+            History h = new History(null);
+            h.beginGroup("macro tidy");
+
+            assertThrows(IllegalStateException.class, h::undo);
+            assertThrows(IllegalStateException.class, h::redo);
+        }
     }
 }
