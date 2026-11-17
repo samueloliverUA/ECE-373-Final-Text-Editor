@@ -1,24 +1,65 @@
-/*
- * CheckpointStore.java   (class)
- * Package:   edu.arizona.ece373.editor.history
- * Owner:     Jack        Reviewer: Sam
- * When:      Week of Nov 9
- * Satisfies: 6.4.5
- * Design doc: Fig 2a; UC2 steps 3-4
+package edu.arizona.ece373.editor.history;
+
+import edu.arizona.ece373.editor.model.Document;
+import edu.arizona.ece373.editor.model.DocumentMemento;
+import edu.arizona.ece373.editor.model.EditException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+/**
+ * Named checkpoints: each name maps to a saved copy of the whole document (6.4.x,
+ * design doc Section 5.5).
  *
- * PURPOSE: Named checkpoints: name -> DocumentMemento.
- *
- * MEMBERS (from the class diagram):
- *   - -saved : Map<String, DocumentMemento>
- *   - +save(name : String, d : Document)
- *   - +get(name : String) : DocumentMemento
- *
- * WHAT TO DO:
- *   1. save(name, d): store d.createMemento(); if the name exists, overwrite and say so.
- *   2. get(name): missing -> EditException listing the saved names.
- *   3. names(): sorted list for 'checkpoint list' (sorted so output is repeatable).
- *
- * TESTED BY: CheckpointStoreTest
- *
- * (Placeholder only - no code yet. Replace this comment with the class and its JavaDoc.)
+ * <p>Saving is not an edit, so it is not undoable. Restoring is, through
+ * {@link RestoreCheckpointCommand}.
  */
+public final class CheckpointStore {
+
+    // TreeMap keeps the names sorted, so 'checkpoint list' output is repeatable.
+    private final Map<String, DocumentMemento> saved = new TreeMap<>();
+
+    /**
+     * Saves the document under a name. An existing checkpoint with that name is
+     * overwritten.
+     *
+     * @param name the checkpoint name; must not be blank
+     * @param d the document to save
+     * @throws EditException if the name is null or blank
+     */
+    public void save(String name, Document d) {
+        if (name == null || name.isBlank()) {
+            throw new EditException("Checkpoint name cannot be empty");
+        }
+        saved.put(name, d.createMemento());
+    }
+
+    /**
+     * @param name a checkpoint name
+     * @return the saved copy
+     * @throws EditException if there is no checkpoint with that name; the message
+     *     lists the saved names
+     */
+    public DocumentMemento get(String name) {
+        DocumentMemento m = saved.get(name);
+        if (m == null) {
+            if (saved.isEmpty()) {
+                throw new EditException("No checkpoint \"" + name + "\"; no checkpoints saved");
+            }
+            throw new EditException("No checkpoint \"" + name + "\"; saved: "
+                    + String.join(", ", saved.keySet()));
+        }
+        return m;
+    }
+
+    /** @return true if a checkpoint with this name exists */
+    public boolean has(String name) {
+        return saved.containsKey(name);
+    }
+
+    /** @return the checkpoint names, sorted */
+    public List<String> names() {
+        return new ArrayList<>(saved.keySet());
+    }
+}
