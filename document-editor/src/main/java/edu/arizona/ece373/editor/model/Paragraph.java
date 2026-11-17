@@ -26,6 +26,12 @@ public final class Paragraph extends DocumentNode {
         out.add(this);
     }
 
+    /** Writes this paragraph's text; {@code depth} does not affect a paragraph. */
+    @Override
+    public void writeTo(DocumentWriter w, int depth) {
+        w.paragraph(text);
+    }
+
     @Override
     public Paragraph deepCopy() {
         return new Paragraph(text.copy());

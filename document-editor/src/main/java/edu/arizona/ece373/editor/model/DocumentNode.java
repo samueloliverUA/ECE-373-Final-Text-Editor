@@ -5,10 +5,18 @@ import java.util.List;
 /**
  * Common type for {@link Section} and {@link Paragraph} (Composite pattern), so every
  * operation works at any nesting depth.
- *
- * <p>TODO (week of Nov 9): add {@code writeTo(DocumentWriter w, int depth)} for the renderers.
  */
 public abstract class DocumentNode {
+
+    /**
+     * Writes this node and everything under it into {@code w}, in document order. A section
+     * writes its heading at {@code depth}, then its children at {@code depth + 1}; a
+     * paragraph writes its text. Renderers start at the root with depth 0.
+     *
+     * @param w the writer that decides how things look
+     * @param depth this node's level; 0 for the document root
+     */
+    public abstract void writeTo(DocumentWriter w, int depth);
 
     /**
      * Adds every paragraph under this node to {@code out}, in document order.

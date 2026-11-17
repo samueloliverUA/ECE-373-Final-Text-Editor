@@ -90,6 +90,15 @@ public final class Section extends DocumentNode {
         }
     }
 
+    /** Writes the heading at {@code depth}, then each child at {@code depth + 1}. */
+    @Override
+    public void writeTo(DocumentWriter w, int depth) {
+        w.heading(title, depth);
+        for (DocumentNode child : children) {
+            child.writeTo(w, depth + 1);
+        }
+    }
+
     @Override
     public Section deepCopy() {
         Section copy = new Section(title.copy());
