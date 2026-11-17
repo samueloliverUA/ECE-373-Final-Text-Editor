@@ -67,6 +67,33 @@ public final class FormattedText {
         text.insert(offset, piece.plainText());
     }
 
+    /**
+     * Adds another piece of text to the end, keeping that piece's formatting.
+     * The piece itself is not changed.
+     *
+     * @param piece the text to add
+     */
+    public void append(FormattedText piece) {
+        text.append(piece.plainText());
+    }
+
+    /**
+     * Keeps the characters before offset and returns the rest as a new piece.
+     *
+     * @param offset where to split; 0 to length()
+     * @return the characters from offset to the end
+     * @throws EditException if offset is outside 0..length()
+     */
+    public FormattedText splitAt(int offset) {
+        if (offset < 0 || offset > text.length()) {
+            throw new EditException("Bad offset " + offset
+                    + " for text of " + text.length() + " characters");
+        }
+        FormattedText right = new FormattedText(text.substring(offset));
+        text.setLength(offset);
+        return right;
+    }
+
     @Override
     public String toString() {
         return plainText();
