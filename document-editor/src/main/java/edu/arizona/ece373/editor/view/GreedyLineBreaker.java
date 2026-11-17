@@ -1,18 +1,34 @@
-/*
- * GreedyLineBreaker.java   (class)
- * Package:   edu.arizona.ece373.editor.view
- * Owner:     Sam        Reviewer: Jack
- * When:      Week of Nov 9
- * Pattern:   Strategy (concrete)
- * Satisfies: 6.6.5
+package edu.arizona.ece373.editor.view;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Fills each line with as many words as fit, then starts the next one. Fast (one pass) but
+ * can leave very uneven line lengths; see {@link BalancedLineBreaker}.
  *
- * PURPOSE: Fills each line with as many words as fit.
- *
- * WHAT TO DO:
- *   1. Words separated by one space. A word longer than the width goes alone on its own line
- *      (never split).
- *
- * TESTED BY: GreedyLineBreakerTest
- *
- * (Placeholder only - no code yet. Replace this comment with the class and its JavaDoc.)
+ * <p>Satisfies 6.6.5.
  */
+public final class GreedyLineBreaker implements LineBreaker {
+
+    @Override
+    public List<String> breakLines(List<String> words, int width) {
+        List<String> lines = new ArrayList<>();
+        StringBuilder line = new StringBuilder();
+        for (String word : words) {
+            if (line.length() == 0) {
+                line.append(word);
+            } else if (line.length() + 1 + word.length() <= width) {
+                line.append(' ').append(word);
+            } else {
+                lines.add(line.toString());
+                line.setLength(0);
+                line.append(word);
+            }
+        }
+        if (line.length() > 0) {
+            lines.add(line.toString());
+        }
+        return lines;
+    }
+}

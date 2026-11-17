@@ -5,6 +5,13 @@ import edu.arizona.ece373.editor.app.Editor;
 import edu.arizona.ece373.editor.app.Result;
 import edu.arizona.ece373.editor.history.AddParagraphCommand;
 import edu.arizona.ece373.editor.history.AddSectionCommand;
+import edu.arizona.ece373.editor.history.DeleteTextCommand;
+import edu.arizona.ece373.editor.history.FormatTextCommand;
+import edu.arizona.ece373.editor.history.FormatTitleCommand;
+import edu.arizona.ece373.editor.history.InsertTextCommand;
+import edu.arizona.ece373.editor.history.MergeParagraphsCommand;
+import edu.arizona.ece373.editor.history.MoveTextCommand;
+import edu.arizona.ece373.editor.history.ReplaceTextCommand;
 import edu.arizona.ece373.editor.model.SectionPath;
 import edu.arizona.ece373.editor.model.TextRange;
 import java.util.Collections;
@@ -88,31 +95,27 @@ public final class CommandParser {
             TextRange at = a.position(0);
             String text = a.text(1);
             a.expectAtMost(2);
-            // TODO: e -> e.perform(new InsertTextCommand(at, text))
-            return notYet("insert");
+            return e -> e.perform(new InsertTextCommand(at.paragraph, at.start, text));
         });
 
         register("delete", a -> {
             TextRange range = a.range(0);
             a.expectAtMost(1);
-            // TODO: e -> e.perform(new DeleteTextCommand(range))
-            return notYet("delete");
+            return e -> e.perform(new DeleteTextCommand(range));
         });
 
         register("replace", a -> {
             TextRange range = a.range(0);
             String text = a.text(1);
             a.expectAtMost(2);
-            // TODO: e -> e.perform(new ReplaceTextCommand(range, text))
-            return notYet("replace");
+            return e -> e.perform(new ReplaceTextCommand(range, text));
         });
 
         register("move", a -> {
             TextRange source = a.range(0);
             TextRange dest = a.position(1);
             a.expectAtMost(2);
-            // TODO: e -> e.perform(new MoveTextCommand(source, dest))
-            return notYet("move");
+            return e -> e.perform(new MoveTextCommand(source, dest.paragraph, dest.start));
         });
 
         register("split", a -> {
@@ -125,8 +128,7 @@ public final class CommandParser {
         register("merge", a -> {
             int paragraph = a.paragraph(0);
             a.expectAtMost(1);
-            // TODO: e -> e.perform(new MergeParagraphsCommand(paragraph))
-            return notYet("merge");
+            return e -> e.perform(new MergeParagraphsCommand(paragraph));
         });
     }
 
@@ -145,21 +147,18 @@ public final class CommandParser {
         register("checkpoint save", a -> {
             String name = a.word(0);
             a.expectAtMost(1);
-            // TODO: e -> e.saveCheckpoint(name)
-            return notYet("checkpoint save");
+            return e -> e.saveCheckpoint(name);
         });
 
         register("checkpoint restore", a -> {
             String name = a.word(0);
             a.expectAtMost(1);
-            // TODO: e -> e.restoreCheckpoint(name)
-            return notYet("checkpoint restore");
+            return e -> e.restoreCheckpoint(name);
         });
 
         register("checkpoint list", a -> {
             a.expectAtMost(0);
-            // TODO: e -> e.listCheckpoints()
-            return notYet("checkpoint list");
+            return Editor::listCheckpoints;
         });
     }
 
@@ -168,15 +167,14 @@ public final class CommandParser {
         register("format", a -> {
             TextRange range = a.range(0);
             String[] change = formatChange(a, 1);
-            // TODO: e -> e.perform(new FormatTextCommand(range, FormatChange.parse(change)))
-            return notYet("format");
+            // Value ranges are checked in validate, so a bad value is a normal error result.
+            return e -> e.perform(new FormatTextCommand(range, change));
         });
 
         register("format title", a -> {
             SectionPath section = a.sectionPath(0);
             String[] change = formatChange(a, 1);
-            // TODO: e -> e.perform(new FormatTitleCommand(section, FormatChange.parse(change)))
-            return notYet("format title");
+            return e -> e.perform(new FormatTitleCommand(section, change));
         });
 
         // Optional requirement 6.5.6 (stretch goal).
@@ -192,29 +190,25 @@ public final class CommandParser {
         register("view", a -> {
             String mode = oneOf(a, 0, "view", Set.of("plain", "markup"));
             a.expectAtMost(1);
-            // TODO: e -> e.setView(mode)
-            return notYet("view");
+            return e -> e.setView(mode);
         });
 
         register("width", a -> {
             int width = a.number(0);
             a.expectAtMost(1);
             // Range 10-200 is checked by ViewSettings so the previous width is kept (UC4 1a).
-            // TODO: e -> e.setWidth(width)
-            return notYet("width");
+            return e -> e.setWidth(width);
         });
 
         register("breaker", a -> {
             String kind = oneOf(a, 0, "breaker", Set.of("greedy", "balanced"));
             a.expectAtMost(1);
-            // TODO: e -> e.setBreaker(kind)
-            return notYet("breaker");
+            return e -> e.setBreaker(kind);
         });
 
         register("show", a -> {
             a.expectAtMost(0);
-            // TODO: e -> Result.ok(e.render())
-            return notYet("show");
+            return Editor::show;
         });
 
         register("stats", a -> {

@@ -1,17 +1,25 @@
-/*
- * PlainTextRenderer.java   (class)
- * Package:   edu.arizona.ece373.editor.view
- * Owner:     Sam        Reviewer: Jack
- * When:      Week of Nov 9
- * Pattern:   Strategy (concrete)
- * Satisfies: 6.6.1
+package edu.arizona.ece373.editor.view;
+
+import edu.arizona.ece373.editor.model.FormattedText;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Plain view: words only, no formatting markers. Words are the text split on whitespace, so
+ * runs of spaces collapse to one when wrapped.
  *
- * PURPOSE: Plain view: words only, no formatting markers.
- *
- * WHAT TO DO:
- *   1. tokens(t): split t.plainText() on whitespace.
- *
- * TESTED BY: PlainTextRendererTest
- *
- * (Placeholder only - no code yet. Replace this comment with the class and its JavaDoc.)
+ * <p>Satisfies 6.6.1.
  */
+public final class PlainTextRenderer extends AbstractRenderer {
+
+    @Override
+    protected List<String> tokens(FormattedText t) {
+        List<String> out = new ArrayList<>();
+        for (String word : t.plainText().split("\\s+")) {
+            if (!word.isEmpty()) {
+                out.add(word);
+            }
+        }
+        return out;
+    }
+}
