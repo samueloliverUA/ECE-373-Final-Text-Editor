@@ -42,7 +42,10 @@ public final class CheckpointStore {
      *     lists the saved names
      */
     public DocumentMemento get(String name) {
-        DocumentMemento m = saved.get(name);
+        DocumentMemento m = null;
+        if (name != null) { // TreeMap.get(null) would throw NullPointerException
+            m = saved.get(name);
+        }
         if (m == null) {
             if (saved.isEmpty()) {
                 throw new EditException("No checkpoint \"" + name + "\"; no checkpoints saved");
@@ -55,7 +58,7 @@ public final class CheckpointStore {
 
     /** @return true if a checkpoint with this name exists */
     public boolean has(String name) {
-        return saved.containsKey(name);
+        return name != null && saved.containsKey(name);
     }
 
     /** @return the checkpoint names, sorted */
