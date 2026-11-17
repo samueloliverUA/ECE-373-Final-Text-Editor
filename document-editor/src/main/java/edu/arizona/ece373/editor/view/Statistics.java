@@ -1,20 +1,58 @@
-/*
- * Statistics.java   (class (value))
- * Package:   edu.arizona.ece373.editor.view
- * Owner:     Jack        Reviewer: Sam
- * When:      Week of Nov 9
- * Satisfies: 6.7.1
- * Design doc: Fig 2a (return type of Editor.stats)
- *
- * PURPOSE: Immutable snapshot of the three counts, returned by Editor.stats().
- *
- * WHAT TO DO:
- *   1. Fields words, characters, paragraphs; toString formats the 'stats' command output.
- *
- * TESTED BY: DocumentStatisticsTest
- *
- * NOTE: Appears only as a return type in the class diagram. Add a box for it when the diagram
- *   is next updated.
- *
- * (Placeholder only - no code yet. Replace this comment with the class and its JavaDoc.)
+package edu.arizona.ece373.editor.view;
+
+/**
+ * An immutable snapshot of the document's word, character and paragraph counts
+ * (6.7.1-6.7.3), returned by {@code Editor.stats()}.
  */
+public final class Statistics {
+
+    private final int words;
+    private final int characters;
+    private final int paragraphs;
+
+    /**
+     * @param words whitespace-separated words in all paragraphs
+     * @param characters characters in all paragraphs, spaces included
+     * @param paragraphs number of paragraphs
+     */
+    public Statistics(int words, int characters, int paragraphs) {
+        this.words = words;
+        this.characters = characters;
+        this.paragraphs = paragraphs;
+    }
+
+    /** @return the word count */
+    public int words() {
+        return words;
+    }
+
+    /** @return the character count, spaces included */
+    public int characters() {
+        return characters;
+    }
+
+    /** @return the paragraph count */
+    public int paragraphs() {
+        return paragraphs;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Statistics)) {
+            return false;
+        }
+        Statistics s = (Statistics) o;
+        return s.words == words && s.characters == characters && s.paragraphs == paragraphs;
+    }
+
+    @Override
+    public int hashCode() {
+        return (words * 31 + characters) * 31 + paragraphs;
+    }
+
+    /** @return the 'stats' command output, e.g. "Words: 2, characters: 11, paragraphs: 1" */
+    @Override
+    public String toString() {
+        return "Words: " + words + ", characters: " + characters + ", paragraphs: " + paragraphs;
+    }
+}
