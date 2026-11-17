@@ -11,10 +11,8 @@ import edu.arizona.ece373.editor.model.TextRange;
  * Replace All (6.8.2, 6.8.3; design doc Figures 4 and 5).
  *
  * <p><b>Formatting decision:</b> the new text takes the formatting of the first
- * replaced character. Replacing a bold word gives a bold word. The week 1
- * {@link FormattedText} stores plain text only, so this takes effect when the
- * {@code TextRun} version is added: only {@link #execute} needs to change, to give the
- * new piece the format of the first run in {@code removed}.
+ * replaced character, so replacing a bold word gives a bold word. Undo puts the old
+ * text back with its own formatting.
  *
  * <p><b>Other decisions:</b> the range must not be empty (to add text with no
  * removal, use {@link InsertTextCommand}). The new text may be empty, which deletes
@@ -66,7 +64,12 @@ public final class ReplaceTextCommand implements EditCommand {
     public void execute(Document d) {
         FormattedText text = d.paragraph(range.paragraph).text();
         removed = text.cut(range.start, range.end);
-        text.insert(range.start, new FormattedText(newText));
+        // Formatting decision (see class comment): take the first replaced character's format.
+        if (removed.isEmpty()) {
+            text.insert(range.start, newText);
+        } else {
+            text.insert(range.start, new FormattedText(newText, removed.formatAt(0)));
+        }
         d.fireChanged(new DocumentEvent(DocumentEvent.Kind.TEXT));
     }
 

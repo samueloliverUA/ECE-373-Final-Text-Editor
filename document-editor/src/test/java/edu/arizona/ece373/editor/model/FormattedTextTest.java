@@ -1,292 +1,518 @@
 package edu.arizona.ece373.editor.model;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
- * Tests {@link FormattedText} (6.3.x).
+ * Tests {@link FormattedText} and {@link TextRun}: insert, cut, splitAt and append at the
+ * start, middle and end and on an empty text; formatting kept on inserted and remaining
+ * characters; applyFormat across several runs with merging and no empty runs; bad offsets.
  *
- * <p>Covers insert, cut, splitAt and append at the start, middle and end and on
- * empty text, and bad offsets throwing {@link EditException}.
- *
- * <p>Not yet covered: formatting kept on inserted and remaining characters, and
- * applyFormat (6.5.2, 6.5.3). Those tests are added with the {@code TextRun}
- * version of FormattedText.
+ * <p>Satisfies 6.3.x, 6.5.2, 6.5.3.
  */
 class FormattedTextTest {
 
-    //constructor, length, copy
+    private static final CharFormat PLAIN = CharFormat.DEFAULT;
+    private static final CharFormat BOLD = PLAIN.with(FormatChange.bold(true));
+    private static final CharFormat ITALIC = PLAIN.with(FormatChange.italic(true));
 
-    @Test
-    void holdsTheTextItWasGiven() {
-        FormattedText t = new FormattedText("Hello world");
-
-        assertEquals("Hello world", t.plainText());
-        assertEquals(11, t.length());
-        assertEquals("Hello world", t.toString());
+    /** "hello " plain + "big" bold + " world" italic. */
+    private static FormattedText mixed() {
+        return new FormattedText(List.of(
+                new TextRun("hello ", PLAIN),
+                new TextRun("big", BOLD),
+                new TextRun(" world", ITALIC)));
     }
 
-    @Test
-    void nullBecomesEmptyText() {
-        FormattedText t = new FormattedText(null);
-
-        assertEquals("", t.plainText());
-        assertEquals(0, t.length());
+    /** Checks the invariants: no empty runs, no equal neighbours. */
+    private static void assertNormalized(FormattedText t) {
+        List<TextRun> runs = t.runs();
+        for (int i = 0; i < runs.size(); i++) {
+            assertFalse(runs.get(i).text.isEmpty(), "empty run at " + i + " in " + runs);
+            if (i > 0) {
+                assertNotEquals(runs.get(i - 1).format, runs.get(i).format,
+                        "unmerged neighbours at " + i + " in " + runs);
+            }
+        }
     }
 
-    @Test
-    void copyIsIndependent() {
-        FormattedText t = new FormattedText("Hello world");
-
-        FormattedText c = t.copy();
-        c.cut(0, 6);
-
-        assertEquals("Hello world", t.plainText());
-        assertEquals("world", c.plainText());
+    private static void assertBad(Runnable r) {
+        assertThrows(EditException.class, r::run);
     }
 
-    // cut / insert / append / splitAt (plain-text version).
-    // All use "Hello world" (11 characters): "Hello" is 0-5, " " is 5-6, "world" is 6-11.
+    // ---------------------------------------------------------------------------------------
+    // TextRun
+    // ---------------------------------------------------------------------------------------
 
-    //cut
+    @Nested
+    class TextRunTests {
 
-    @Test
-    void cutFromTheStart() {
-        FormattedText t = new FormattedText("Hello world");
+        @Test
+        void holdsTextAndFormat() {
+            TextRun r = new TextRun("abc", BOLD);
+            assertEquals("abc", r.text);
+            assertEquals(BOLD, r.format);
+            assertEquals(3, r.length());
+        }
 
-        FormattedText removed = t.cut(0, 6);
+        @Test
+        void withersReturnNewRuns() {
+            TextRun r = new TextRun("abc", BOLD);
+            assertEquals(new TextRun("xy", BOLD), r.withText("xy"));
+            assertEquals(new TextRun("abc", ITALIC), r.withFormat(ITALIC));
+            assertEquals("abc", r.text);
+            assertEquals(BOLD, r.format);
+        }
 
-        assertEquals("world", t.plainText());
-        assertEquals("Hello ", removed.plainText());
+        @Test
+        void equalsComparesTextAndFormat() {
+            assertEquals(new TextRun("a", BOLD), new TextRun("a", BOLD));
+            assertEquals(new TextRun("a", BOLD).hashCode(), new TextRun("a", BOLD).hashCode());
+            assertNotEquals(new TextRun("a", BOLD), new TextRun("a", ITALIC));
+            assertNotEquals(new TextRun("a", BOLD), new TextRun("b", BOLD));
+        }
+
+        @Test
+        void rejectsNulls() {
+            assertThrows(NullPointerException.class, () -> new TextRun(null, BOLD));
+            assertThrows(NullPointerException.class, () -> new TextRun("a", null));
+        }
     }
 
-    @Test
-    void cutFromTheMiddle() {
-        FormattedText t = new FormattedText("Hello world");
+    // ---------------------------------------------------------------------------------------
+    // Construction
+    // ---------------------------------------------------------------------------------------
 
-        FormattedText removed = t.cut(5, 6);
+    @Nested
+    class Construction {
 
-        assertEquals("Helloworld", t.plainText());
-        assertEquals(" ", removed.plainText());
+        @Test
+        void plainTextIsOneDefaultRun() {
+            FormattedText t = new FormattedText("hello");
+            assertEquals(List.of(new TextRun("hello", PLAIN)), t.runs());
+            assertEquals(5, t.length());
+            assertEquals("hello", t.plainText());
+        }
+
+        @Test
+        void emptyAndNullHaveNoRuns() {
+            assertTrue(new FormattedText("").runs().isEmpty());
+            assertTrue(new FormattedText((String) null).isEmpty());
+            assertEquals(0, new FormattedText("").length());
+        }
+
+        @Test
+        void runListIsNormalized() {
+            FormattedText t = new FormattedText(List.of(
+                    new TextRun("a", BOLD), new TextRun("", ITALIC), new TextRun("b", BOLD)));
+            assertEquals(List.of(new TextRun("ab", BOLD)), t.runs());
+        }
+
+        @Test
+        void runsListIsReadOnly() {
+            assertThrows(UnsupportedOperationException.class,
+                    () -> mixed().runs().add(new TextRun("x", PLAIN)));
+        }
+
+        @Test
+        void copyIsIndependent() {
+            FormattedText t = mixed();
+            FormattedText c = t.copy();
+            assertEquals(t, c);
+            c.insert(0, "X");
+            assertEquals("hello big world", t.plainText());
+            assertEquals("Xhello big world", c.plainText());
+        }
+
+        @Test
+        void formatAtEachCharacter() {
+            FormattedText t = mixed();
+            assertEquals(PLAIN, t.formatAt(0));
+            assertEquals(PLAIN, t.formatAt(5));
+            assertEquals(BOLD, t.formatAt(6));
+            assertEquals(BOLD, t.formatAt(8));
+            assertEquals(ITALIC, t.formatAt(9));
+            assertEquals(ITALIC, t.formatAt(14));
+            assertBad(() -> t.formatAt(15));
+            assertBad(() -> t.formatAt(-1));
+        }
     }
 
-    @Test
-    void cutToTheEnd() {
-        FormattedText t = new FormattedText("Hello world");
+    // ---------------------------------------------------------------------------------------
+    // insert
+    // ---------------------------------------------------------------------------------------
 
-        FormattedText removed = t.cut(5, 11);
+    @Nested
+    class Insert {
 
-        assertEquals("Hello", t.plainText());
-        assertEquals(" world", removed.plainText());
+        @Test
+        void atStartMiddleEnd() {
+            FormattedText t = new FormattedText("bd");
+            t.insert(0, "a");
+            t.insert(2, "c");
+            t.insert(4, "e");
+            assertEquals("abcde", t.plainText());
+            assertEquals(1, t.runs().size());
+        }
+
+        @Test
+        void intoEmptyTextGetsDefault() {
+            FormattedText t = new FormattedText("");
+            t.insert(0, "hi");
+            assertEquals(List.of(new TextRun("hi", PLAIN)), t.runs());
+        }
+
+        @Test
+        void takesFormatOfCharacterBefore() {
+            FormattedText t = mixed();
+            t.insert(9, "!"); // right after "big"
+            assertEquals("hello big! world", t.plainText());
+            assertEquals(BOLD, t.formatAt(9));
+            assertEquals(ITALIC, t.formatAt(10));
+            assertNormalized(t);
+        }
+
+        @Test
+        void atStartTakesFormatOfFirstCharacter() {
+            FormattedText t = new FormattedText("bc", BOLD);
+            t.insert(0, "a");
+            assertEquals(List.of(new TextRun("abc", BOLD)), t.runs());
+        }
+
+        @Test
+        void insideRunKeepsSurroundingFormat() {
+            FormattedText t = mixed();
+            t.insert(7, "XX"); // inside "big"
+            assertEquals("hello bXXig world", t.plainText());
+            assertEquals(List.of(new TextRun("hello ", PLAIN), new TextRun("bXXig", BOLD),
+                    new TextRun(" world", ITALIC)), t.runs());
+        }
+
+        @Test
+        void formattedInsertKeepsItsFormatting() {
+            FormattedText t = new FormattedText("ac");
+            t.insert(1, new FormattedText("b", BOLD));
+            assertEquals(List.of(new TextRun("a", PLAIN), new TextRun("b", BOLD),
+                    new TextRun("c", PLAIN)), t.runs());
+        }
+
+        @Test
+        void formattedInsertMergesWithNeighbours() {
+            FormattedText t = new FormattedText("ac");
+            t.insert(1, new FormattedText("b"));
+            assertEquals(List.of(new TextRun("abc", PLAIN)), t.runs());
+        }
+
+        @Test
+        void emptyInsertChangesNothing() {
+            FormattedText t = mixed();
+            t.insert(3, "");
+            assertEquals(mixed(), t);
+        }
+
+        @ParameterizedTest
+        @ValueSource(ints = {-1, 4, 100})
+        void badOffsetRejectedAndTextUnchanged(int offset) {
+            FormattedText t = new FormattedText("abc");
+            assertBad(() -> t.insert(offset, "x"));
+            assertEquals("abc", t.plainText());
+        }
     }
 
-    @Test
-    void cutTheWholeTextLeavesItEmpty() {
-        FormattedText t = new FormattedText("Hello world");
+    // ---------------------------------------------------------------------------------------
+    // cut
+    // ---------------------------------------------------------------------------------------
 
-        FormattedText removed = t.cut(0, 11);
+    @Nested
+    class Cut {
 
-        assertEquals("", t.plainText());
-        assertEquals(0, t.length());
-        assertEquals("Hello world", removed.plainText());
+        @Test
+        void fromStart() {
+            FormattedText t = new FormattedText("abcdef");
+            FormattedText out = t.cut(0, 2);
+            assertEquals("ab", out.plainText());
+            assertEquals("cdef", t.plainText());
+        }
+
+        @Test
+        void fromMiddle() {
+            FormattedText t = new FormattedText("abcdef");
+            assertEquals("cd", t.cut(2, 4).plainText());
+            assertEquals("abef", t.plainText());
+        }
+
+        @Test
+        void fromEnd() {
+            FormattedText t = new FormattedText("abcdef");
+            assertEquals("ef", t.cut(4, 6).plainText());
+            assertEquals("abcd", t.plainText());
+        }
+
+        @Test
+        void everything() {
+            FormattedText t = mixed();
+            FormattedText out = t.cut(0, t.length());
+            assertEquals(mixed(), out);
+            assertTrue(t.isEmpty());
+        }
+
+        @Test
+        void emptyRangeOnEmptyText() {
+            FormattedText t = new FormattedText("");
+            assertTrue(t.cut(0, 0).isEmpty());
+            assertTrue(t.isEmpty());
+        }
+
+        @Test
+        void acrossRunsKeepsFormattingOnBothSides() {
+            FormattedText t = mixed();
+            FormattedText out = t.cut(4, 11); // "o big w"
+            assertEquals("o big w", out.plainText());
+            assertEquals(List.of(new TextRun("o ", PLAIN), new TextRun("big", BOLD),
+                    new TextRun(" w", ITALIC)), out.runs());
+            assertEquals(List.of(new TextRun("hell", PLAIN), new TextRun("orld", ITALIC)),
+                    t.runs());
+        }
+
+        @Test
+        void removingMiddleRunMergesEqualNeighbours() {
+            FormattedText t = new FormattedText(List.of(new TextRun("aa", PLAIN),
+                    new TextRun("BB", BOLD), new TextRun("cc", PLAIN)));
+            t.cut(2, 4);
+            assertEquals(List.of(new TextRun("aacc", PLAIN)), t.runs());
+        }
+
+        @Test
+        void cutThenInsertRestoresOriginal() {
+            FormattedText t = mixed();
+            FormattedText out = t.cut(3, 12);
+            t.insert(3, out);
+            assertEquals(mixed(), t);
+            assertNormalized(t);
+        }
+
+        @ParameterizedTest
+        @CsvSource({"-1, 2", "0, 4", "3, 2", "4, 4"})
+        void badRangeRejectedAndTextUnchanged(int start, int end) {
+            FormattedText t = new FormattedText("abc");
+            assertBad(() -> t.cut(start, end));
+            assertEquals("abc", t.plainText());
+        }
     }
 
-    @Test
-    void cutAnEmptyRangeChangesNothing() {
-        FormattedText t = new FormattedText("Hello world");
+    // ---------------------------------------------------------------------------------------
+    // splitAt
+    // ---------------------------------------------------------------------------------------
 
-        FormattedText removed = t.cut(3, 3);
+    @Nested
+    class SplitAt {
 
-        assertEquals("Hello world", t.plainText());
-        assertEquals("", removed.plainText());
+        @Test
+        void atStartMovesEverything() {
+            FormattedText t = new FormattedText("abc");
+            assertEquals("abc", t.splitAt(0).plainText());
+            assertTrue(t.isEmpty());
+        }
+
+        @Test
+        void inMiddle() {
+            FormattedText t = new FormattedText("abcdef");
+            assertEquals("def", t.splitAt(3).plainText());
+            assertEquals("abc", t.plainText());
+        }
+
+        @Test
+        void atEndGivesEmptyTail() {
+            FormattedText t = new FormattedText("abc");
+            assertTrue(t.splitAt(3).isEmpty());
+            assertEquals("abc", t.plainText());
+        }
+
+        @Test
+        void onEmptyText() {
+            FormattedText t = new FormattedText("");
+            assertTrue(t.splitAt(0).isEmpty());
+            assertTrue(t.isEmpty());
+        }
+
+        @Test
+        void insideRunKeepsFormattingOnBothHalves() {
+            FormattedText t = mixed();
+            FormattedText tail = t.splitAt(7); // inside "big"
+            assertEquals(List.of(new TextRun("hello ", PLAIN), new TextRun("b", BOLD)),
+                    t.runs());
+            assertEquals(List.of(new TextRun("ig", BOLD), new TextRun(" world", ITALIC)),
+                    tail.runs());
+        }
+
+        @Test
+        void badOffsetRejected() {
+            FormattedText t = new FormattedText("abc");
+            assertBad(() -> t.splitAt(4));
+            assertBad(() -> t.splitAt(-1));
+            assertEquals("abc", t.plainText());
+        }
     }
 
-    @Test
-    void cutRejectsBadRanges() {
-        FormattedText t = new FormattedText("Hello world");
+    // ---------------------------------------------------------------------------------------
+    // append
+    // ---------------------------------------------------------------------------------------
 
-        assertThrows(EditException.class, () -> t.cut(-1, 3));
-        assertThrows(EditException.class, () -> t.cut(0, 12));
-        assertThrows(EditException.class, () -> t.cut(6, 5));
-        assertEquals("Hello world", t.plainText());
+    @Nested
+    class Append {
+
+        @Test
+        void toNonEmpty() {
+            FormattedText t = new FormattedText("abc");
+            t.append(new FormattedText("def", BOLD));
+            assertEquals("abcdef", t.plainText());
+            assertEquals(List.of(new TextRun("abc", PLAIN), new TextRun("def", BOLD)),
+                    t.runs());
+        }
+
+        @Test
+        void toEmpty() {
+            FormattedText t = new FormattedText("");
+            t.append(mixed());
+            assertEquals(mixed(), t);
+        }
+
+        @Test
+        void emptyToNonEmpty() {
+            FormattedText t = mixed();
+            t.append(new FormattedText(""));
+            assertEquals(mixed(), t);
+        }
+
+        @Test
+        void equalFormatsAtJoinMerge() {
+            FormattedText t = new FormattedText("ab", BOLD);
+            t.append(new FormattedText("cd", BOLD));
+            assertEquals(List.of(new TextRun("abcd", BOLD)), t.runs());
+        }
+
+        @Test
+        void argumentIsNotChanged() {
+            FormattedText other = mixed();
+            FormattedText t = new FormattedText("x");
+            t.append(other);
+            t.insert(t.length(), "y");
+            assertEquals(mixed(), other);
+        }
+
+        @Test
+        void splitThenAppendRestoresOriginal() {
+            FormattedText t = mixed();
+            t.append(t.splitAt(7));
+            assertEquals(mixed(), t);
+        }
     }
 
-    //insert
+    // ---------------------------------------------------------------------------------------
+    // applyFormat
+    // ---------------------------------------------------------------------------------------
 
-    @Test
-    void insertAtTheStart() {
-        FormattedText t = new FormattedText("Hello world");
+    @Nested
+    class ApplyFormat {
 
-        t.insert(0, new FormattedText("Oh, "));
+        @Test
+        void insideOneRunSplitsItInThree() {
+            FormattedText t = new FormattedText("abcdef");
+            t.applyFormat(2, 4, FormatChange.bold(true));
+            assertEquals(List.of(new TextRun("ab", PLAIN), new TextRun("cd", BOLD),
+                    new TextRun("ef", PLAIN)), t.runs());
+        }
 
-        assertEquals("Oh, Hello world", t.plainText());
+        @Test
+        void acrossSeveralRunsChangesOnlyThatAttribute() {
+            FormattedText t = mixed();
+            t.applyFormat(3, 12, FormatChange.size(20));
+            assertEquals(List.of(
+                    new TextRun("hel", PLAIN),
+                    new TextRun("lo ", PLAIN.with(FormatChange.size(20))),
+                    new TextRun("big", BOLD.with(FormatChange.size(20))),
+                    new TextRun(" wo", ITALIC.with(FormatChange.size(20))),
+                    new TextRun("rld", ITALIC)), t.runs());
+            assertNormalized(t);
+        }
+
+        @Test
+        void charactersNeverChange() {
+            FormattedText t = mixed();
+            t.applyFormat(0, t.length(), FormatChange.color("red"));
+            assertEquals("hello big world", t.plainText());
+        }
+
+        @Test
+        void equalNeighboursMerge() {
+            FormattedText t = mixed();
+            t.applyFormat(6, 9, FormatChange.bold(false)); // "big" back to plain
+            assertEquals(List.of(new TextRun("hello big", PLAIN),
+                    new TextRun(" world", ITALIC)), t.runs());
+        }
+
+        @Test
+        void wholeTextBecomesOneRun() {
+            FormattedText t = mixed();
+            t.applyFormat(0, t.length(), FormatChange.bold(false));
+            t.applyFormat(0, t.length(), FormatChange.italic(false));
+            assertEquals(List.of(new TextRun("hello big world", PLAIN)), t.runs());
+        }
+
+        @Test
+        void noEmptyRunsAtBoundaries() {
+            FormattedText t = mixed();
+            t.applyFormat(0, 6, FormatChange.italic(true)); // exactly the first run
+            assertNormalized(t);
+            t.applyFormat(15, 15, FormatChange.bold(true)); // empty range at end
+            assertNormalized(t);
+        }
+
+        @Test
+        void returnsOldRunsForUndo() {
+            FormattedText t = mixed();
+            List<TextRun> old = t.applyFormat(2, 13, FormatChange.font("Arial"));
+            assertNotEquals(mixed(), t);
+            t.restoreRuns(old);
+            assertEquals(mixed(), t);
+        }
+
+        @Test
+        void onEmptyText() {
+            FormattedText t = new FormattedText("");
+            assertTrue(t.applyFormat(0, 0, FormatChange.bold(true)).isEmpty());
+            assertTrue(t.isEmpty());
+        }
+
+        @Test
+        void badRangeRejectedAndTextUnchanged() {
+            FormattedText t = mixed();
+            assertBad(() -> t.applyFormat(0, 16, FormatChange.bold(true)));
+            assertBad(() -> t.applyFormat(5, 4, FormatChange.bold(true)));
+            assertBad(() -> t.applyFormat(-1, 2, FormatChange.bold(true)));
+            assertEquals(mixed(), t);
+        }
     }
 
-    @Test
-    void insertInTheMiddle() {
-        FormattedText t = new FormattedText("Hello world");
-
-        t.insert(5, new FormattedText(" brave"));
-
-        assertEquals("Hello brave world", t.plainText());
-    }
+    // ---------------------------------------------------------------------------------------
+    // equals
+    // ---------------------------------------------------------------------------------------
 
     @Test
-    void insertAtTheEnd() {
-        FormattedText t = new FormattedText("Hello world");
-
-        t.insert(11, new FormattedText("!"));
-
-        assertEquals("Hello world!", t.plainText());
-    }
-
-    @Test
-    void insertIntoEmptyText() {
-        FormattedText t = new FormattedText("");
-
-        t.insert(0, new FormattedText("first"));
-
-        assertEquals("first", t.plainText());
-    }
-
-    @Test
-    void insertAnEmptyPieceChangesNothing() {
-        FormattedText t = new FormattedText("Hello world");
-
-        t.insert(5, new FormattedText(""));
-
-        assertEquals("Hello world", t.plainText());
-    }
-
-    @Test
-    void insertDoesNotChangeThePiece() {
-        FormattedText t = new FormattedText("Hello world");
-        FormattedText piece = new FormattedText(" brave");
-
-        t.insert(5, piece);
-
-        assertEquals(" brave", piece.plainText());
-    }
-
-    @Test
-    void insertRejectsBadOffsets() {
-        FormattedText t = new FormattedText("Hello world");
-
-        assertThrows(EditException.class, () -> t.insert(-1, new FormattedText("x")));
-        assertThrows(EditException.class, () -> t.insert(12, new FormattedText("x")));
-        assertEquals("Hello world", t.plainText());
-    }
-
-    @Test
-    void cutThenInsertPutsTheTextBack() {
-        FormattedText t = new FormattedText("Hello world");
-
-        FormattedText removed = t.cut(5, 11);
-        t.insert(5, removed);
-
-        assertEquals("Hello world", t.plainText());
-    }
-
-    //append
-
-    @Test
-    void appendAddsToTheEnd() {
-        FormattedText t = new FormattedText("Hello");
-
-        t.append(new FormattedText(" world"));
-
-        assertEquals("Hello world", t.plainText());
-    }
-
-    @Test
-    void appendToEmptyText() {
-        FormattedText t = new FormattedText("");
-
-        t.append(new FormattedText("world"));
-
-        assertEquals("world", t.plainText());
-    }
-
-    @Test
-    void appendAnEmptyPieceChangesNothing() {
-        FormattedText t = new FormattedText("Hello");
-
-        t.append(new FormattedText(""));
-
-        assertEquals("Hello", t.plainText());
-    }
-
-    @Test
-    void appendDoesNotChangeThePiece() {
-        FormattedText t = new FormattedText("Hello");
-        FormattedText piece = new FormattedText(" world");
-
-        t.append(piece);
-        t.cut(0, 5);
-
-        assertEquals(" world", piece.plainText());
-    }
-
-    //splitAt
-
-    @Test
-    void splitAtTheStartMovesEverything() {
-        FormattedText t = new FormattedText("Hello world");
-
-        FormattedText right = t.splitAt(0);
-
-        assertEquals("", t.plainText());
-        assertEquals("Hello world", right.plainText());
-    }
-
-    @Test
-    void splitInTheMiddle() {
-        FormattedText t = new FormattedText("Hello world");
-
-        FormattedText right = t.splitAt(6);
-
-        assertEquals("Hello ", t.plainText());
-        assertEquals("world", right.plainText());
-    }
-
-    @Test
-    void splitAtTheEndReturnsAnEmptyPiece() {
-        FormattedText t = new FormattedText("Hello world");
-
-        FormattedText right = t.splitAt(11);
-
-        assertEquals("Hello world", t.plainText());
-        assertEquals("", right.plainText());
-    }
-
-    @Test
-    void splitAtRejectsBadOffsets() {
-        FormattedText t = new FormattedText("Hello world");
-
-        assertThrows(EditException.class, () -> t.splitAt(-1));
-        assertThrows(EditException.class, () -> t.splitAt(12));
-        assertEquals("Hello world", t.plainText());
-    }
-
-    @Test
-    void splitThenAppendPutsTheTextBack() {
-        FormattedText t = new FormattedText("Hello world");
-
-        FormattedText right = t.splitAt(5);
-        t.append(right);
-
-        assertEquals("Hello world", t.plainText());
-    }
-
-    @Test
-    void splitPieceIsIndependent() {
-        FormattedText t = new FormattedText("Hello world");
-
-        FormattedText right = t.splitAt(5);
-        right.cut(0, 1);
-
-        assertEquals("Hello", t.plainText());
-        assertEquals("world", right.plainText());
+    void equalsComparesFormattingToo() {
+        assertEquals(new FormattedText("abc"), new FormattedText("abc"));
+        assertEquals(new FormattedText("abc").hashCode(), new FormattedText("abc").hashCode());
+        assertNotEquals(new FormattedText("abc"), new FormattedText("abc", BOLD));
+        assertEquals("abc", new FormattedText("abc", BOLD).toString());
     }
 }

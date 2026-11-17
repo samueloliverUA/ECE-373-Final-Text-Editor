@@ -3,7 +3,6 @@ package edu.arizona.ece373.editor.history;
 import edu.arizona.ece373.editor.model.Document;
 import edu.arizona.ece373.editor.model.DocumentEvent;
 import edu.arizona.ece373.editor.model.EditException;
-import edu.arizona.ece373.editor.model.FormattedText;
 import edu.arizona.ece373.editor.model.Paragraph;
 
 /** Inserts text at a position in a paragraph (6.3.1, design doc Figure 3). */
@@ -42,8 +41,9 @@ public final class InsertTextCommand implements EditCommand {
 
     @Override
     public void execute(Document d) {
-        // New FormattedText each time, so redo never shares a piece with the paragraph.
-        d.paragraph(paragraph).text().insert(offset, new FormattedText(text));
+        // The String version of insert gives the new text its neighbour's formatting,
+        // so typing inside a bold word stays bold.
+        d.paragraph(paragraph).text().insert(offset, text);
         d.fireChanged(new DocumentEvent(DocumentEvent.Kind.TEXT));
     }
 
