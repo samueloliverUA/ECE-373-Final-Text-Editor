@@ -18,11 +18,8 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Tests operations on deeply nested content: a document {@value #DEPTH} levels deep, where
- * lookup, the outline, rendering (plain and markup, both breakers), formatting, editing,
- * undo and checkpoint restore all reach the deepest paragraph.
- *
- * <p>TODO when Jack's subsystems land: statistics ({@code DocumentStatistics}) and find
- * ({@code SearchService}) must also reach the deepest paragraph.
+ * lookup, the outline, rendering (plain and markup, both breakers), statistics, find and
+ * replace, formatting, editing, undo and checkpoint restore all reach the deepest paragraph.
  *
  * <p>Satisfies 6.2.3.
  */
@@ -119,6 +116,26 @@ class DeepNestingTest {
                 assertTrue(out.contains(word), breaker + " lost " + word);
             }
         }
+    }
+
+    @Test
+    void statisticsCountDeepestParagraph() {
+        // "top" (1 word, 3 chars) + DEEP_TEXT (4 words, 23 chars); titles not counted
+        assertEquals(new edu.arizona.ece373.editor.view.Statistics(5, 26, 2), editor.stats());
+        ok(editor.perform(new DeleteTextCommand(new TextRange(2, 0, 8))));
+        assertEquals(new edu.arizona.ece373.editor.view.Statistics(4, 18, 2), editor.stats());
+    }
+
+    @Test
+    void findAndReplaceReachDeepestParagraph() {
+        assertEquals("Found 1: p2:8-13",
+                editor.find("words", new edu.arizona.ece373.editor.search.WholeWordMatch())
+                        .message);
+        ok(editor.replaceAll("live", "sleep",
+                new edu.arizona.ece373.editor.search.SubstringMatch()));
+        assertEquals("deepest words sleep here", deepest().text().plainText());
+        ok(editor.undo());
+        assertEquals(DEEP_TEXT, deepest().text().plainText());
     }
 
     @Test

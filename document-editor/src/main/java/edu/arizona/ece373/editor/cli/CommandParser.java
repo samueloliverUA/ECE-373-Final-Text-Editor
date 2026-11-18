@@ -12,8 +12,17 @@ import edu.arizona.ece373.editor.history.InsertTextCommand;
 import edu.arizona.ece373.editor.history.MergeParagraphsCommand;
 import edu.arizona.ece373.editor.history.MoveTextCommand;
 import edu.arizona.ece373.editor.history.ReplaceTextCommand;
+import edu.arizona.ece373.editor.history.SplitParagraphCommand;
 import edu.arizona.ece373.editor.model.SectionPath;
 import edu.arizona.ece373.editor.model.TextRange;
+import edu.arizona.ece373.editor.search.MatchStrategy;
+import edu.arizona.ece373.editor.search.SubstringMatch;
+import edu.arizona.ece373.editor.search.WholeWordMatch;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -43,6 +52,10 @@ public final class CommandParser {
     private final Map<String, ActionFactory> factories = new LinkedHashMap<>();
     /** First words of two-word verbs, e.g. {@code section}, for better error messages. */
     private final Set<String> prefixes = new HashSet<>();
+
+    private static final int MAX_SCRIPT_DEPTH = 10;
+    /** How many {@code run} commands are in progress, to stop runaway recursion. */
+    private int scriptDepth;
 
     /** Registers every supported verb. */
     public CommandParser() {
@@ -121,8 +134,7 @@ public final class CommandParser {
         register("split", a -> {
             TextRange at = a.position(0);
             a.expectAtMost(1);
-            // TODO: e -> e.perform(new SplitParagraphCommand(at))
-            return notYet("split");
+            return e -> e.perform(new SplitParagraphCommand(at.paragraph, at.start));
         });
 
         register("merge", a -> {
@@ -213,8 +225,7 @@ public final class CommandParser {
 
         register("stats", a -> {
             a.expectAtMost(0);
-            // TODO: e -> Result.ok(e.stats().toString())
-            return notYet("stats");
+            return e -> Result.ok(e.stats().toString());
         });
     }
 
@@ -223,24 +234,21 @@ public final class CommandParser {
         register("find", a -> {
             String query = a.text(0);
             boolean word = wordFlag(a, 1);
-            // TODO: e -> e.find(query, word ? new WholeWordMatch() : new SubstringMatch())
-            return notYet("find");
+            return e -> e.find(query, strategy(word));
         });
 
         register("replace-first", a -> {
             String query = a.text(0);
             String replacement = a.text(1);
             boolean word = wordFlag(a, 2);
-            // TODO: e -> e.replaceFirst(query, replacement, strategy(word))
-            return notYet("replace-first");
+            return e -> e.replaceFirst(query, replacement, strategy(word));
         });
 
         register("replace-all", a -> {
             String query = a.text(0);
             String replacement = a.text(1);
             boolean word = wordFlag(a, 2);
-            // TODO: e -> e.replaceAll(query, replacement, strategy(word))
-            return notYet("replace-all");
+            return e -> e.replaceAll(query, replacement, strategy(word));
         });
     }
 
@@ -249,28 +257,24 @@ public final class CommandParser {
         register("macro record", a -> {
             String name = a.word(0);
             a.expectAtMost(1);
-            // TODO: e -> e.macros().startRecording(name)
-            return notRecorded(notYet("macro record"));
+            return notRecorded(e -> e.startMacro(name));
         });
 
         register("macro end", a -> {
             a.expectAtMost(0);
-            // TODO: e -> e.macros().endRecording()
-            return notRecorded(notYet("macro end"));
+            return notRecorded(Editor::endMacro);
         });
 
         register("macro play", a -> {
             String name = a.word(0);
             a.expectAtMost(1);
-            // TODO: e -> e.macros().play(name, e)
-            return notRecorded(notYet("macro play"));
+            return notRecorded(e -> e.playMacro(name));
         });
 
         register("run", a -> {
             String file = a.isQuoted(0) ? a.text(0) : a.word(0);
             a.expectAtMost(1);
-            // TODO: e -> new ScriptRunner(this, ...).run(Path.of(file), e)
-            return notRecorded(notYet("run"));
+            return notRecorded(e -> runScript(file, e));
         });
 
         register("quit", a -> {
@@ -395,6 +399,40 @@ public final class CommandParser {
         }
         a.expectAtMost(i + 1);
         return true;
+    }
+
+    /** @return whole-word matching if {@code word}, else substring matching */
+    private static MatchStrategy strategy(boolean word) {
+        return word ? new WholeWordMatch() : new SubstringMatch();
+    }
+
+    /**
+     * Runs a script for the {@code run} command. Its echoed lines and results are returned as
+     * one message, followed by the summary. A {@code quit} inside the script only ends the
+     * script. Scripts may run other scripts, up to {@value #MAX_SCRIPT_DEPTH} deep, so a
+     * script that runs itself stops with an error instead of looping forever.
+     */
+    private Result runScript(String file, Editor e) {
+        if (scriptDepth >= MAX_SCRIPT_DEPTH) {
+            return Result.error("scripts nested more than " + MAX_SCRIPT_DEPTH + " deep");
+        }
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        PrintStream out = new PrintStream(buffer, true, StandardCharsets.UTF_8);
+        Result r;
+        scriptDepth++;
+        try {
+            r = new ScriptRunner(this, e).run(Path.of(file), out);
+        } catch (InvalidPathException ex) {
+            return Result.error("bad file name '" + file + "'");
+        } finally {
+            scriptDepth--;
+        }
+        if (!r.ok) {
+            return r;
+        }
+        String echoed = buffer.toString(StandardCharsets.UTF_8).stripTrailing();
+        String summary = r.quit ? "Script ended with quit" : r.message;
+        return Result.ok(echoed.isEmpty() ? summary : echoed + "\n" + summary);
     }
 
     /** An action for a verb whose engine support has not landed yet. */
