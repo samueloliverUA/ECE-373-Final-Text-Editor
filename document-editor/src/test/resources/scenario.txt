@@ -1,9 +1,113 @@
-# scenario.txt  -  Owner: Shared (Sam writes it in week 1, Jack reviews)
-# The ConOps Section 2.1 workflow written as editor commands. ScenarioTest runs this file.
-# WHAT TO DO:
-#   1. Turn every step of the ConOps 2.1 scenario into one or more commands from the Section 1.3 table.
-#   2. Cover at least: build sections, add paragraphs, insert/delete/move, format, checkpoint save,
-#      edits, checkpoint restore, view plain and markup at two widths, both breakers, stats,
-#      find, replace-all, undo of replace-all, macro record/play/undo.
-#   3. Keep it in the same order as the scenario so the demo can trace it back to use cases.
-# (Placeholder - no commands yet.)
+# scenario.txt  -  Owner: Shared (Sam wrote it, Jack reviews)
+# The ConOps Section 2.1 workflow as editor commands, in use-case order, so the demo can
+# trace every step back to UC1-UC6. ScenarioTest runs this file and compares the output with
+# scenario-expected.txt byte for byte. Steps marked "(fails)" exercise an alternate flow and
+# are expected to print an error; the script carries on after them (UC6 4b).
+
+# ---- UC1 Build and edit the document --------------------------------------------------
+section add "Introduction"
+para add 1 "This report describes a small program for editing structured documents."
+section add "Methods"
+para add 2 "We built the program in Java and tested every class with JUnit."
+section add 2 "Setup"
+para add 2.1 "The program runs on any machine with Java 17 installed."
+section add "Results"
+para add 3 "The program passed on the first full run all of its tests."
+outline
+# 1a: missing section (fails)
+para add 2.4 "nowhere"
+# 1b: empty title (fails)
+section add "   "
+insert p1:30 "but useful "
+delete p2:28-62
+replace p3:20-31 "Linux, macOS or Windows"
+# 4c: move " all of its tests" to just after "passed"
+move p4:40-57 p4:18
+# 4a / 4b: split p4 after "tests", then merge it back
+split p4:35
+outline
+merge p4
+# 5a: start after end (fails)
+delete p1:20-10
+# 4c: destination inside the source (fails)
+move p4:0-10 p4:5
+outline
+
+# ---- UC2 Undo, redo and checkpoints -----------------------------------------------------
+undo
+redo
+checkpoint save before-results-edit
+replace p4:4-11 "editor"
+para add 3 "A paragraph added after the checkpoint."
+checkpoint list
+checkpoint restore before-results-edit
+outline
+# 4a: unknown checkpoint (fails)
+checkpoint restore final-draft
+# 4b: the restore itself can be undone, and redone
+undo
+redo
+
+# ---- UC3 Format text --------------------------------------------------------------------
+format p1:0-4 bold on
+format p1:5-11 italic on
+format p2:24-28 size 14
+format p3:49-56 font "Arial"
+format p4:4-11 color red
+format title 1 size 18
+# 2a: invalid size and colour (fail)
+format p1:0-4 size 99
+format p1:0-4 color reddish
+
+# ---- UC4 View the document and its statistics -------------------------------------------
+view plain
+width 60
+breaker greedy
+show
+view markup
+width 30
+show
+breaker balanced
+show
+# 1a: width out of range keeps 30 (fails)
+width 5
+stats
+
+# ---- UC5 Find and replace text ----------------------------------------------------------
+view plain
+width 80
+find "program"
+find "program" word
+find "pro"
+find "pro" word
+replace-all "program" "system"
+show
+stats
+# 4a: one undo reverses every replacement
+undo
+show
+replace-first "program" "tool"
+# 2a: no matches, nothing replaced or recorded
+replace-all "zebra" "horse"
+# 1a: empty search text (fails)
+find ""
+
+# ---- UC6 Automate with macros -----------------------------------------------------------
+macro record fmt-and-show
+format p4:30-35 bold on
+view markup
+# 1b: undo is not recorded
+undo
+redo
+show
+macro end
+undo
+view plain
+macro play fmt-and-show
+show
+# 3c: one undo reverses the whole replay
+undo
+show
+# 3a: unknown macro (fails)
+macro play tidy
+stats

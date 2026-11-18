@@ -125,7 +125,7 @@ public final class ConsoleApp {
     public Result execute(String line) {
         try {
             Action action = parser.parse(line);
-            return action.run(editor);
+            return editor.run(action); // records it if a macro is being recorded
         } catch (ParseException e) {
             return Result.error(e.getMessage());
         } catch (RuntimeException e) {

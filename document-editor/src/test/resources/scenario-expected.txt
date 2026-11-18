@@ -1,4 +1,328 @@
-Owner: Shared. Expected output of scenario.txt, compared byte-for-byte by ScenarioTest.
-WHAT TO DO: once output wording is final (week of Nov 16), run the script, check every line by hand,
-and save the output here. Update it whenever message wording changes on purpose.
-(Placeholder - empty until then.)
+> section add "Introduction"
+Added section 1 "Introduction"
+> para add 1 "This report describes a small program for editing structured documents."
+Added paragraph 1 to section 1
+> section add "Methods"
+Added section 2 "Methods"
+> para add 2 "We built the program in Java and tested every class with JUnit."
+Added paragraph 2 to section 2
+> section add 2 "Setup"
+Added section 2.1 "Setup"
+> para add 2.1 "The program runs on any machine with Java 17 installed."
+Added paragraph 3 to section 2.1
+> section add "Results"
+Added section 3 "Results"
+> para add 3 "The program passed on the first full run all of its tests."
+Added paragraph 4 to section 3
+> outline
+1 Introduction
+  p1: "This report describes a small program fo..."
+2 Methods
+  p2: "We built the program in Java and tested ..."
+  2.1 Setup
+    p3: "The program runs on any machine with Jav..."
+3 Results
+  p4: "The program passed on the first full run..."
+> para add 2.4 "nowhere"
+line 18: Error: No section 2.4
+> section add "   "
+line 20: Error: Section title cannot be empty
+> insert p1:30 "but useful "
+Insert 11 characters at p1:30
+> delete p2:28-62
+Deleted 34 characters from p2:28-62
+> replace p3:20-31 "Linux, macOS or Windows"
+Replaced "any machine" with "Linux, macOS or Windows" at p3:20-31
+> move p4:40-57 p4:18
+Moved 17 characters from p4:40-57 to p4:18
+> split p4:35
+Split p4 at 35 into p4 and p5
+> outline
+1 Introduction
+  p1: "This report describes a small but useful..."
+2 Methods
+  p2: "We built the program in Java."
+  2.1 Setup
+    p3: "The program runs on Linux, macOS or Wind..."
+3 Results
+  p4: "The program passed all of its tests"
+  p5: " on the first full run."
+> merge p4
+Merged p5 into p4
+> delete p1:20-10
+line 31: Error: start is after end in 'p1:20-10'
+> move p4:0-10 p4:5
+line 33: Error: Destination p4:5 must be outside p4:0-10
+> outline
+1 Introduction
+  p1: "This report describes a small but useful..."
+2 Methods
+  p2: "We built the program in Java."
+  2.1 Setup
+    p3: "The program runs on Linux, macOS or Wind..."
+3 Results
+  p4: "The program passed all of its tests on t..."
+> undo
+Undid: merged p5 into p4
+> redo
+Redid: merged p5 into p4
+> checkpoint save before-results-edit
+Saved checkpoint "before-results-edit"
+> replace p4:4-11 "editor"
+Replaced "program" with "editor" at p4:4-11
+> para add 3 "A paragraph added after the checkpoint."
+Added paragraph 5 to section 3
+> checkpoint list
+Checkpoints: before-results-edit
+> checkpoint restore before-results-edit
+Restored checkpoint "before-results-edit"
+> outline
+1 Introduction
+  p1: "This report describes a small but useful..."
+2 Methods
+  p2: "We built the program in Java."
+  2.1 Setup
+    p3: "The program runs on Linux, macOS or Wind..."
+3 Results
+  p4: "The program passed all of its tests on t..."
+> checkpoint restore final-draft
+line 46: Error: No checkpoint "final-draft"; saved: before-results-edit
+> undo
+Undid: restored checkpoint "before-results-edit"
+> redo
+Redid: restored checkpoint "before-results-edit"
+> format p1:0-4 bold on
+Formatted p1:0-4 bold on
+> format p1:5-11 italic on
+Formatted p1:5-11 italic on
+> format p2:24-28 size 14
+Formatted p2:24-28 size 14
+> format p3:49-56 font "Arial"
+Formatted p3:49-56 font "Arial"
+> format p4:4-11 color red
+Formatted p4:4-11 color red
+> format title 1 size 18
+Formatted title of section 1 size 18
+> format p1:0-4 size 99
+line 59: Error: size must be 6-72, got 99
+> format p1:0-4 color reddish
+line 60: Error: unknown color 'reddish'; use #RRGGBB or one of [black, blue, brown, cyan, gray, green, magenta, orange, pink, purple, red, white, yellow]
+> view plain
+View: plain
+> width 60
+Width: 60
+> breaker greedy
+Line breaker: greedy
+> show
+1 Introduction
+
+This report describes a small but useful program for editing
+structured documents.
+
+2 Methods
+
+We built the program in Java.
+
+2.1 Setup
+
+The program runs on Linux, macOS or Windows with Java 17
+installed.
+
+3 Results
+
+The program passed all of its tests on the first full run.
+> view markup
+View: markup
+> width 30
+Width: 30
+> show
+1 [size=18: Introduction]
+
+*This* _report_ describes a
+small but useful program for
+editing structured documents.
+
+2 Methods
+
+We built the program in
+[size=14: Java].
+
+2.1 Setup
+
+The program runs on Linux,
+macOS or Windows with
+[font=Arial: Java]
+[font=Arial: 17] installed.
+
+3 Results
+
+The [color=red: program]
+passed all of its tests on the
+first full run.
+> breaker balanced
+Line breaker: balanced
+> show
+1 [size=18: Introduction]
+
+*This* _report_ describes a
+small but useful program for
+editing structured documents.
+
+2 Methods
+
+We built the program in
+[size=14: Java].
+
+2.1 Setup
+
+The program runs on
+Linux, macOS or Windows
+with [font=Arial: Java]
+[font=Arial: 17] installed.
+
+3 Results
+
+The [color=red: program]
+passed all of its tests on the
+first full run.
+> width 5
+line 73: Error: width must be 10-200, got 5; width is still 30
+> stats
+Words: 42, characters: 236, paragraphs: 4
+> view plain
+View: plain
+> width 80
+Width: 80
+> find "program"
+Found 4: p1:41-48, p2:13-20, p3:4-11, p4:4-11
+> find "program" word
+Found 4: p1:41-48, p2:13-20, p3:4-11, p4:4-11
+> find "pro"
+Found 4: p1:41-44, p2:13-16, p3:4-7, p4:4-7
+> find "pro" word
+No matches for "pro"
+> replace-all "program" "system"
+Replace all with "system" (4)
+> show
+1 Introduction
+
+This report describes a small but useful system for editing structured
+documents.
+
+2 Methods
+
+We built the system in Java.
+
+2.1 Setup
+
+The system runs on Linux, macOS or Windows with Java 17 installed.
+
+3 Results
+
+The system passed all of its tests on the first full run.
+> stats
+Words: 42, characters: 232, paragraphs: 4
+> undo
+Undid: replace all with "system" (4)
+> show
+1 Introduction
+
+This report describes a small but useful program for editing structured
+documents.
+
+2 Methods
+
+We built the program in Java.
+
+2.1 Setup
+
+The program runs on Linux, macOS or Windows with Java 17 installed.
+
+3 Results
+
+The program passed all of its tests on the first full run.
+> replace-first "program" "tool"
+Replaced "program" with "tool" at p1:41-48
+> replace-all "zebra" "horse"
+No matches for "zebra"; nothing replaced
+> find ""
+line 93: Error: Search text cannot be empty
+> macro record fmt-and-show
+Recording macro "fmt-and-show"; 'macro end' to finish
+> format p4:30-35 bold on
+Formatted p4:30-35 bold on
+> view markup
+View: markup
+> undo
+Undid: formatted p4:30-35 bold on
+> redo
+Redid: formatted p4:30-35 bold on
+> show
+1 [size=18: Introduction]
+
+*This* _report_ describes a small but useful tool for editing structured
+documents.
+
+2 Methods
+
+We built the program in [size=14: Java].
+
+2.1 Setup
+
+The program runs on Linux, macOS or Windows with [font=Arial: Java]
+[font=Arial: 17] installed.
+
+3 Results
+
+The [color=red: program] passed all of its *tests* on the first full run.
+> macro end
+Recorded macro "fmt-and-show" (3 steps)
+> undo
+Undid: formatted p4:30-35 bold on
+> view plain
+View: plain
+> macro play fmt-and-show
+Played macro "fmt-and-show" (3 steps)
+> show
+1 [size=18: Introduction]
+
+*This* _report_ describes a small but useful tool for editing structured
+documents.
+
+2 Methods
+
+We built the program in [size=14: Java].
+
+2.1 Setup
+
+The program runs on Linux, macOS or Windows with [font=Arial: Java]
+[font=Arial: 17] installed.
+
+3 Results
+
+The [color=red: program] passed all of its *tests* on the first full run.
+> undo
+Undid: macro fmt-and-show (1)
+> show
+1 [size=18: Introduction]
+
+*This* _report_ describes a small but useful tool for editing structured
+documents.
+
+2 Methods
+
+We built the program in [size=14: Java].
+
+2.1 Setup
+
+The program runs on Linux, macOS or Windows with [font=Arial: Java]
+[font=Arial: 17] installed.
+
+3 Results
+
+The [color=red: program] passed all of its tests on the first full run.
+> macro play tidy
+line 112: Error: No macro "tidy"; recorded: fmt-and-show
+> stats
+Words: 42, characters: 233, paragraphs: 4
+Ran scenario.txt (113 lines, 10 errors)

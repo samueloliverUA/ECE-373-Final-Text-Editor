@@ -78,7 +78,7 @@ public final class ScriptRunner {
     /** Parses and runs one line; never throws. */
     private Result runLine(String command) {
         try {
-            return parser.parse(command).run(editor);
+            return editor.run(parser.parse(command)); // recorded like a typed command
         } catch (ParseException e) {
             return Result.error(e.getMessage());
         } catch (RuntimeException e) {
