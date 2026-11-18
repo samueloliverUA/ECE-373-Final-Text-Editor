@@ -1,19 +1,47 @@
-/*
- * Match.java   (class (value))
- * Package:   edu.arizona.ece373.editor.search
- * Owner:     Jack        Reviewer: Sam
- * When:      Week of Nov 16
- * Design doc: Fig 2a
+package edu.arizona.ece373.editor.search;
+
+import edu.arizona.ece373.editor.model.TextRange;
+import java.util.Objects;
+
+/**
+ * One search result: where the match is in the document (design doc Figure 2a).
+ * Immutable.
  *
- * PURPOSE: One search result: a TextRange.
- *
- * MEMBERS (from the class diagram):
- *   - +range : TextRange
- *
- * WHAT TO DO:
- *   1. Hold one TextRange; toString prints p2:31-38.
- *
- * TESTED BY: SearchServiceTest
- *
- * (Placeholder only - no code yet. Replace this comment with the class and its JavaDoc.)
+ * <p>{@link #toString()} prints the same syntax the user types, e.g. {@code p2:31-38},
+ * so a find result can be copied straight into a delete or format command.
  */
+public final class Match {
+
+    /** The matched characters: paragraph number, start, end (exclusive). */
+    public final TextRange range;
+
+    /**
+     * @param range where the match is; must not be null
+     */
+    public Match(TextRange range) {
+        this.range = Objects.requireNonNull(range, "range");
+    }
+
+    /** Equal when both matches cover the same paragraph, start and end. */
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Match)) {
+            return false;
+        }
+        Match m = (Match) o;
+        return m.range.paragraph == range.paragraph
+                && m.range.start == range.start
+                && m.range.end == range.end;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(range.paragraph, range.start, range.end);
+    }
+
+    /** @return the range in the form the user types, e.g. "p2:31-38" */
+    @Override
+    public String toString() {
+        return range.toString();
+    }
+}

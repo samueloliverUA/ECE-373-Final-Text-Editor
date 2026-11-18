@@ -1,17 +1,30 @@
-/*
- * SubstringMatch.java   (class)
- * Package:   edu.arizona.ece373.editor.search
- * Owner:     Jack        Reviewer: Sam
- * When:      Week of Nov 16
- * Pattern:   Strategy (concrete)
- * Satisfies: 6.8.1
+package edu.arizona.ece373.editor.search;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Matches the query anywhere in the text, case-sensitive (6.8.1). Pattern: Strategy
+ * (concrete). For example, "cat" matches inside "concatenate".
  *
- * PURPOSE: Matches the query anywhere, case-sensitive.
- *
- * WHAT TO DO:
- *   1. Use indexOf in a loop; after a match continue from its end (no overlaps).
- *
- * TESTED BY: SubstringMatchTest
- *
- * (Placeholder only - no code yet. Replace this comment with the class and its JavaDoc.)
+ * <p>Matches do not overlap: after a match, the search continues from its end, so
+ * "aa" in "aaaa" gives {0, 2} and {2, 4}.
  */
+public final class SubstringMatch implements MatchStrategy {
+
+    @Override
+    public List<int[]> findIn(String text, String q) {
+        List<int[]> matches = new ArrayList<>();
+        if (text == null || q == null || q.isEmpty()) {
+            return matches;
+        }
+        int from = 0;
+        int at = text.indexOf(q, from);
+        while (at >= 0) {
+            matches.add(new int[] {at, at + q.length()});
+            from = at + q.length(); // continue after this match, so matches never overlap
+            at = text.indexOf(q, from);
+        }
+        return matches;
+    }
+}
