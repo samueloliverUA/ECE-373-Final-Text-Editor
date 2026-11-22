@@ -53,13 +53,14 @@ public final class CharFormat {
      * @return a new format equal to this one except for that attribute
      */
     public CharFormat with(FormatChange change) {
-        return switch (change.attribute()) {
+        CharFormat made = switch (change.attribute()) {
             case BOLD -> new CharFormat(change.flag(), italic, font, size, color);
             case ITALIC -> new CharFormat(bold, change.flag(), font, size, color);
             case FONT -> new CharFormat(bold, italic, change.text(), size, color);
             case SIZE -> new CharFormat(bold, italic, font, change.size(), color);
             case COLOR -> new CharFormat(bold, italic, font, size, change.text());
         };
+        return FormatPool.shared().intern(made);
     }
 
     /** @return true if every attribute matches {@link #DEFAULT} */
