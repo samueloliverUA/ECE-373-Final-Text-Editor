@@ -56,13 +56,13 @@ public final class ScriptRunner {
                 if (command.isEmpty() || command.startsWith("#")) {
                     continue;
                 }
-                out.println("> " + command);
+                out.print("> " + command + "\n");
                 Result result = runLine(command);
                 if (!result.ok) {
                     failures++;
-                    out.println("line " + lineNumber + ": Error: " + result.message);
+                    out.print("line " + lineNumber + ": Error: " + result.message + "\n");
                 } else {
-                    out.println(result.message);
+                    out.print(result.message + "\n");
                 }
                 if (result.quit) {
                     return result;
