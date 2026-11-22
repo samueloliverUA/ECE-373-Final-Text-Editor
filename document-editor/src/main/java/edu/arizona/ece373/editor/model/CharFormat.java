@@ -20,7 +20,7 @@ public final class CharFormat {
 
     /** Plain text: not bold, not italic, default font, size 12, black. */
     public static final CharFormat DEFAULT =
-            new CharFormat(false, false, DEFAULT_FONT, DEFAULT_SIZE, DEFAULT_COLOR);
+            FormatPool.shared().intern(new CharFormat(false, false, DEFAULT_FONT, DEFAULT_SIZE, DEFAULT_COLOR));
 
     /** True if bold. */
     public final boolean bold;
