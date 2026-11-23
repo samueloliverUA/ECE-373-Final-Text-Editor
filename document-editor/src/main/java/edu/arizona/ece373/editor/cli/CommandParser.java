@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import edu.arizona.ece373.editor.model.FormatPool;
 
 /**
  * Turns one line of text into an {@link Action}. The only class that knows command syntax
@@ -66,6 +67,7 @@ public final class CommandParser {
         registerViewing();
         registerSearch();
         registerAutomation();
+        registerHelp();
     }
 
     // ---------------------------------------------------------------------------------------
@@ -192,8 +194,7 @@ public final class CommandParser {
         // Optional requirement 6.5.6 (stretch goal).
         register("formats", a -> {
             a.expectAtMost(0);
-            // TODO: e -> e.formatCount()
-            return notYet("formats");
+            return e -> Result.ok(FormatPool.shared().size() + " distinct formats stored");
         });
     }
 
@@ -282,6 +283,53 @@ public final class CommandParser {
             return notRecorded(e -> Result.quit("Goodbye"));
         });
     }
+
+    /** help: lists every command with an example. Not recorded in macros. */
+    private void registerHelp() {
+        register("help", a -> {
+            a.expectAtMost(0);
+            return notRecorded(e -> Result.ok(HELP));
+        });
+    }
+
+    private static final String HELP = """
+            Positions: pN:i is paragraph N, offset i. Ranges: pN:i-j is characters i up to j.
+
+            Structure
+              section add "Title"            add a top-level section
+              section add 1 "Title"          add a subsection under section 1
+              para add 1 "text"              add a paragraph at the end of section 1
+              outline                        show the numbered section outline
+            Editing
+              insert p1:5 "text"             insert text at paragraph 1, offset 5
+              delete p1:0-5                  delete characters 0-5 of paragraph 1
+              replace p1:0-5 "text"          replace characters 0-5 with new text
+              move p1:0-5 p1:12              move characters 0-5 to offset 12
+              split p1:5                     split paragraph 1 into two at offset 5
+              merge 1                        join paragraph 2 onto the end of paragraph 1
+            History
+              undo / redo
+              checkpoint save NAME           save the whole document under a name
+              checkpoint restore NAME        go back to a saved version (undoable)
+              checkpoint list
+            Formatting
+              format p1:0-5 bold on          also italic on|off, font "Name", size N, color NAME
+              format title 1 bold on         format section 1's title
+              formats                        how many distinct formats are stored
+            Viewing
+              show                           print the document
+              view plain|markup              plain text, or with formatting markers
+              width N                        line width, 10-200
+              breaker greedy|balanced        how lines are wrapped
+              stats                          word, character and paragraph counts
+            Search
+              find "text" [word]             list matches; add 'word' for whole words only
+              replace-first "old" "new" [word]
+              replace-all "old" "new" [word] one undo puts everything back
+            Automation
+              macro record NAME / macro end / macro play NAME
+              run FILE                       run a script file of commands
+              help / quit""";
 
     // ---------------------------------------------------------------------------------------
     // Parsing
