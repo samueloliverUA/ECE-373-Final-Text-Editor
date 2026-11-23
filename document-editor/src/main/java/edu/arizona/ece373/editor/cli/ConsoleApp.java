@@ -90,7 +90,7 @@ public final class ConsoleApp {
     public int interactive(InputStream in) {
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(in, StandardCharsets.UTF_8));
-        out.println("Document editor. Type commands; 'quit' to exit.");
+        out.println("Document Editor. Type 'help' for commands, 'quit' to exit.");
         while (true) {
             out.print(PROMPT);
             out.flush();
