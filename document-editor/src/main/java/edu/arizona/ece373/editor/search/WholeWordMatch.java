@@ -19,7 +19,7 @@ import java.util.List;
  */
 public final class WholeWordMatch implements MatchStrategy {
 
-    /** Creates a whole-word match strategy. */
+    /** Creates a case-sensitive whole-word matcher. */
     public WholeWordMatch() {
     }
 

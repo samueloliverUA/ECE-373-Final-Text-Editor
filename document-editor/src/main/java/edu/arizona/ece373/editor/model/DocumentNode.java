@@ -8,6 +8,10 @@ import java.util.List;
  */
 public abstract class DocumentNode {
 
+    /** For subclasses ({@link Section} and {@link Paragraph}). */
+    protected DocumentNode() {
+    }
+
     /**
      * Writes this node and everything under it into {@code w}, in document order. A section
      * writes its heading at {@code depth}, then its children at {@code depth + 1}; a
@@ -25,11 +29,7 @@ public abstract class DocumentNode {
      */
     public abstract void collectParagraphs(List<Paragraph> out);
 
-    /**
-     * Returns a deep, independent copy of this node and everything under it.
-     *
-     * @return a deep, independent copy of this node and everything under it
-     */
+    /** @return a deep, independent copy of this node and everything under it */
     public abstract DocumentNode deepCopy();
 
     /**
@@ -40,10 +40,6 @@ public abstract class DocumentNode {
      * @param state numbering state shared across the walk
      */
     abstract void appendOutline(StringBuilder out, SectionPath parentPath, OutlineState state);
-
-    /** Creates a document node. */
-    public DocumentNode() {
-    }
 
     /** @return this node as a Section, or null if it is not one */
     Section asSection() {
