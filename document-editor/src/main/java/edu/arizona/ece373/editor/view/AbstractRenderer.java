@@ -31,10 +31,6 @@ import java.util.Objects;
  */
 public abstract class AbstractRenderer implements Renderer, DocumentWriter {
 
-    /** For subclasses, which only supply {@link #tokens(FormattedText)}. */
-    protected AbstractRenderer() {
-    }
-
     /** What an empty document renders as. */
     public static final String EMPTY = "(empty document)";
 
@@ -42,6 +38,10 @@ public abstract class AbstractRenderer implements Renderer, DocumentWriter {
     private final List<Integer> numbers = new ArrayList<>();
     private LineBreaker breaker;
     private int width;
+
+    /** Creates a renderer. */
+    public AbstractRenderer() {
+    }
 
     @Override
     public final String render(Document d, LineBreaker b, int width) {
