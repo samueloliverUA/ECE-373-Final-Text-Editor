@@ -1,7 +1,0 @@
-# demo.txt  -  Owner: Sam  (Reviewer: Jack)  -  Week of Nov 30
-# Script for the live product demonstration (rubric: 5 pts).
-# WHAT TO DO:
-#   1. Pick 3-4 scenarios and label each with the use case it shows (e.g. '# UC5 Replace All, then one undo').
-#   2. Keep it under the allotted demo time; rehearse with: java -jar target/editor.jar scripts/demo.txt
-#   3. Make sure at least one scenario is traced back to its use case out loud during the demo.
-# (Placeholder - no commands yet.)
