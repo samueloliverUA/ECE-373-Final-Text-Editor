@@ -20,6 +20,10 @@ import java.util.List;
  */
 public final class BalancedLineBreaker implements LineBreaker {
 
+    /** Creates a balanced line breaker. */
+    public BalancedLineBreaker() {
+    }
+
     @Override
     public List<String> breakLines(List<String> words, int width) {
         int n = words.size();

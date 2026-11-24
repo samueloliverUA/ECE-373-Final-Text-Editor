@@ -83,7 +83,11 @@ public final class Editor {
         }
     }
 
-    /** @return what was undone, or "Nothing to undo" */
+    /**
+     * Undoes the most recent change.
+     *
+     * @return what was undone, or "Nothing to undo"
+     */
     public Result undo() {
         try {
             return Result.ok(history.undo());
@@ -92,7 +96,11 @@ public final class Editor {
         }
     }
 
-    /** @return what was redone, or "Nothing to redo" */
+    /**
+     * Redoes the most recently undone change.
+     *
+     * @return what was redone, or "Nothing to redo"
+     */
     public Result redo() {
         try {
             return Result.ok(history.redo());
@@ -131,7 +139,11 @@ public final class Editor {
         return perform(new RestoreCheckpointCommand(checkpoints, name));
     }
 
-    /** @return the saved checkpoint names, sorted, or "No checkpoints saved" */
+    /**
+     * Lists the saved checkpoints.
+     *
+     * @return the saved checkpoint names, sorted, or "No checkpoints saved"
+     */
     public Result listCheckpoints() {
         List<String> names = checkpoints.names();
         if (names.isEmpty()) {
@@ -145,6 +157,8 @@ public final class Editor {
     // ---------------------------------------------------------------------------------------
 
     /**
+     * Switches between the plain and markup views.
+     *
      * @param mode {@code plain} or {@code markup}
      * @return confirmation, or an error leaving the view unchanged
      */
@@ -158,6 +172,8 @@ public final class Editor {
     }
 
     /**
+     * Sets the line width.
+     *
      * @param width the new line width, 10 to 200
      * @return confirmation, or an error leaving the old width (UC4 1a)
      */
@@ -171,6 +187,8 @@ public final class Editor {
     }
 
     /**
+     * Switches the line-breaking strategy.
+     *
      * @param kind {@code greedy} or {@code balanced}
      * @return confirmation, or an error leaving the breaker unchanged
      */
@@ -183,22 +201,38 @@ public final class Editor {
         }
     }
 
-    /** @return the document rendered with the current view, breaker and width */
+    /**
+     * Renders the document with the current view settings.
+     *
+     * @return the document rendered with the current view, breaker and width
+     */
     public String render() {
         return view.render(document);
     }
 
-    /** @return {@link #render()} as a successful result, for the {@code show} command */
+    /**
+     * Renders the document for the {@code show} command.
+     *
+     * @return {@link #render()} as a successful result, for the {@code show} command
+     */
     public Result show() {
         return Result.ok(render());
     }
 
-    /** @return the tree with section paths and paragraph numbers */
+    /**
+     * Builds an outline of the document.
+     *
+     * @return the tree with section paths and paragraph numbers
+     */
     public Result outline() {
         return Result.ok(document.outline());
     }
 
-    /** @return the current word, character and paragraph counts */
+    /**
+     * Returns the current word, character and paragraph counts.
+     *
+     * @return the current word, character and paragraph counts
+     */
     public Statistics stats() {
         return statistics.current();
     }
@@ -208,6 +242,8 @@ public final class Editor {
     // ---------------------------------------------------------------------------------------
 
     /**
+     * Finds every match for a query.
+     *
      * @param query the text to look for
      * @param strategy substring or whole-word matching
      * @return the matches as ranges (e.g. {@code Found 2: p1:0-3, p2:4-7}), "No matches",
@@ -279,6 +315,8 @@ public final class Editor {
     // ---------------------------------------------------------------------------------------
 
     /**
+     * Starts recording a macro.
+     *
      * @param name the macro to record
      * @return confirmation, or an error if already recording
      */
@@ -291,7 +329,11 @@ public final class Editor {
         }
     }
 
-    /** @return confirmation with the step count, or an error if not recording */
+    /**
+     * Stops recording the current macro.
+     *
+     * @return confirmation with the step count, or an error if not recording
+     */
     public Result endMacro() {
         try {
             String name = macros.stopRecording();
@@ -304,6 +346,8 @@ public final class Editor {
     }
 
     /**
+     * Replays a recorded macro.
+     *
      * @param name the macro to replay as one undoable change
      * @return confirmation, or an error naming the failing step (replay rolled back)
      */
@@ -315,32 +359,56 @@ public final class Editor {
     // Collaborators
     // ---------------------------------------------------------------------------------------
 
-    /** @return the document */
+    /**
+     * Returns the document.
+     *
+     * @return the document
+     */
     public Document document() {
         return document;
     }
 
-    /** @return the undo/redo history */
+    /**
+     * Returns the undo/redo history.
+     *
+     * @return the undo/redo history
+     */
     public History history() {
         return history;
     }
 
-    /** @return the named checkpoints */
+    /**
+     * Returns the named checkpoints.
+     *
+     * @return the named checkpoints
+     */
     public CheckpointStore checkpoints() {
         return checkpoints;
     }
 
-    /** @return the current view, breaker and width */
+    /**
+     * Returns the current view, breaker and width.
+     *
+     * @return the current view, breaker and width
+     */
     public ViewSettings view() {
         return view;
     }
 
-    /** @return the recorded macros */
+    /**
+     * Returns the recorded macros.
+     *
+     * @return the recorded macros
+     */
     public MacroLibrary macros() {
         return macros;
     }
 
-    /** @return the search service */
+    /**
+     * Returns the search service.
+     *
+     * @return the search service
+     */
     public SearchService search() {
         return search;
     }

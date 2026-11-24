@@ -22,13 +22,19 @@ public final class DocumentEvent {
     private final Kind kind;
 
     /**
+     * Creates an event for one change.
+     *
      * @param kind the kind of change; not null
      */
     public DocumentEvent(Kind kind) {
         this.kind = Objects.requireNonNull(kind, "kind");
     }
 
-    /** @return the kind of change */
+    /**
+     * Returns the kind of change.
+     *
+     * @return the kind of change
+     */
     public Kind kind() {
         return kind;
     }

@@ -19,6 +19,10 @@ import java.util.List;
  */
 public final class WholeWordMatch implements MatchStrategy {
 
+    /** Creates a whole-word match strategy. */
+    public WholeWordMatch() {
+    }
+
     @Override
     public List<int[]> findIn(String text, String q) {
         List<int[]> matches = new ArrayList<>();

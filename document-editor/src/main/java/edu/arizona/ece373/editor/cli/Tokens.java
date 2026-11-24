@@ -87,6 +87,8 @@ public final class Tokens {
     }
 
     /**
+     * Returns the tokens from an index onward, used to drop the verb.
+     *
      * @param from index of the first token to keep
      * @return the tokens from {@code from} on (used to drop the verb)
      */
@@ -95,12 +97,18 @@ public final class Tokens {
                 tokens.size())));
     }
 
-    /** @return the number of tokens */
+    /**
+     * Returns the number of tokens.
+     *
+     * @return the number of tokens
+     */
     public int count() {
         return tokens.size();
     }
 
     /**
+     * Checks whether token {@code i} exists and was written in quotes.
+     *
      * @param i token index
      * @return true if token {@code i} exists and was written in quotes
      */
@@ -109,6 +117,8 @@ public final class Tokens {
     }
 
     /**
+     * Checks whether an unquoted token equals {@code word}.
+     *
      * @param word a flag such as {@code word}
      * @return true if an unquoted token equals {@code word}
      */
@@ -122,6 +132,8 @@ public final class Tokens {
     }
 
     /**
+     * Reads a token as quoted text.
+     *
      * @param i token index
      * @return the contents of a quoted string
      * @throws ParseException if missing or not quoted
@@ -136,6 +148,8 @@ public final class Tokens {
     }
 
     /**
+     * Reads a token as a bare word.
+     *
      * @param i token index
      * @return a bare (unquoted) word, such as a checkpoint name or {@code plain}
      * @throws ParseException if missing or quoted
@@ -149,6 +163,8 @@ public final class Tokens {
     }
 
     /**
+     * Reads a token as a whole number.
+     *
      * @param i token index
      * @return the token as an integer
      * @throws ParseException if missing or not a whole number
@@ -166,6 +182,8 @@ public final class Tokens {
     }
 
     /**
+     * Reads a token as a position.
+     *
      * @param i token index
      * @return a position such as {@code p2:14}, as a range with {@code start == end}
      * @throws ParseException if missing or malformed
@@ -180,6 +198,8 @@ public final class Tokens {
     }
 
     /**
+     * Reads a token as a character range.
+     *
      * @param i token index
      * @return a range such as {@code p2:5-12}
      * @throws ParseException if missing, malformed, or the start is after the end
@@ -198,6 +218,8 @@ public final class Tokens {
     }
 
     /**
+     * Reads a token as a paragraph number.
+     *
      * @param i token index
      * @return a paragraph number written {@code p2}
      * @throws ParseException if missing or malformed
@@ -210,6 +232,8 @@ public final class Tokens {
     }
 
     /**
+     * Reads a token as a section path.
+     *
      * @param i token index
      * @return a section path such as {@code 2.1}
      * @throws ParseException if missing or malformed

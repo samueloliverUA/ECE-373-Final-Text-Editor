@@ -33,7 +33,11 @@ public final class DocumentStatistics implements DocumentListener {
     private int paragraphs;
     private boolean stale = true;
 
-    /** @param document the document to count; register this object as its listener */
+    /**
+     * Creates statistics for a document.
+     *
+     * @param document the document to count; register this object as its listener
+     */
     public DocumentStatistics(Document document) {
         this.document = document;
     }
@@ -44,7 +48,11 @@ public final class DocumentStatistics implements DocumentListener {
         stale = true;
     }
 
-    /** @return the current counts, recounting only if the document changed */
+    /**
+     * Returns the current word, character and paragraph counts.
+     *
+     * @return the current counts, recounting only if the document changed
+     */
     public Statistics current() {
         if (stale) {
             recount();

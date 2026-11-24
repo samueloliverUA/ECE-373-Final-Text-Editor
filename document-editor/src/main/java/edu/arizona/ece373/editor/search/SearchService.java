@@ -24,6 +24,10 @@ import java.util.Objects;
  */
 public final class SearchService {
 
+    /** Creates a search service. */
+    public SearchService() {
+    }
+
     /**
      * Finds every match in the document, in document order.
      *

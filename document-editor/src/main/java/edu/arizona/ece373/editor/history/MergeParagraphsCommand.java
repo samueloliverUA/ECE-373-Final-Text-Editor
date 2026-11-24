@@ -21,7 +21,11 @@ public final class MergeParagraphsCommand implements EditCommand {
     private int boundary = -1;
     private int secondIndex = -1;
 
-    /** @param number the paragraph to merge into; paragraph number + 1 is appended to it */
+    /**
+     * Creates a command that merges a paragraph with the next one.
+     *
+     * @param number the paragraph to merge into; paragraph number + 1 is appended to it
+     */
     public MergeParagraphsCommand(int number) {
         this.number = number;
     }
@@ -64,7 +68,11 @@ public final class MergeParagraphsCommand implements EditCommand {
         d.fireChanged(new DocumentEvent(DocumentEvent.Kind.STRUCTURE));
     }
 
-    /** @return the offset where the second paragraph's text starts, or -1 before execute */
+    /**
+     * Returns the offset where the second paragraph's text starts.
+     *
+     * @return the offset where the second paragraph's text starts, or -1 before execute
+     */
     public int boundary() {
         return boundary;
     }

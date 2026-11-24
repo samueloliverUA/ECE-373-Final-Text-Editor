@@ -16,6 +16,8 @@ public final class AddParagraphCommand implements EditCommand {
     private int number = -1;
 
     /**
+     * Creates a command that adds a paragraph to the end of a section.
+     *
      * @param sectionPath the section to append to
      * @param text the paragraph text
      */
@@ -47,7 +49,11 @@ public final class AddParagraphCommand implements EditCommand {
         d.fireChanged(new DocumentEvent(DocumentEvent.Kind.STRUCTURE));
     }
 
-    /** @return the paragraph's number after {@link #execute}, or -1 before */
+    /**
+     * Returns the number of the paragraph this command added.
+     *
+     * @return the paragraph's number after {@link #execute}, or -1 before
+     */
     public int addedNumber() {
         return number;
     }

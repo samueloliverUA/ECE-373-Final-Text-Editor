@@ -31,6 +31,8 @@ public final class ReplaceTextCommand implements EditCommand {
     private FormattedText removed;
 
     /**
+     * Creates a command that replaces a range of text.
+     *
      * @param range the text to replace (end exclusive)
      * @param newText the replacement; null is treated as empty
      */
@@ -82,7 +84,11 @@ public final class ReplaceTextCommand implements EditCommand {
         d.fireChanged(new DocumentEvent(DocumentEvent.Kind.TEXT));
     }
 
-    /** @return the text that was replaced, or null before {@link #execute} */
+    /**
+     * Returns the text this command replaced.
+     *
+     * @return the text that was replaced, or null before {@link #execute}
+     */
     public FormattedText removedText() {
         return removed;
     }

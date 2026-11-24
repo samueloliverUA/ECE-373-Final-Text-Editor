@@ -11,6 +11,10 @@ import java.util.List;
  */
 public final class GreedyLineBreaker implements LineBreaker {
 
+    /** Creates a greedy line breaker. */
+    public GreedyLineBreaker() {
+    }
+
     @Override
     public List<String> breakLines(List<String> words, int width) {
         List<String> lines = new ArrayList<>();

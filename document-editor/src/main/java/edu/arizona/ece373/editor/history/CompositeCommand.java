@@ -24,6 +24,8 @@ public class CompositeCommand implements EditCommand {
     private final List<EditCommand> parts = new ArrayList<>();
 
     /**
+     * Creates an empty composite command.
+     *
      * @param name short name for messages, examples like {@code replace all} or {@code macro tidy}
      */
 
@@ -52,6 +54,8 @@ public class CompositeCommand implements EditCommand {
     }
 
     /**
+     * Returns the parts of this command in execution order.
+     *
      * @return the parts in execution order, read only
      */
     public List<EditCommand> parts() {
@@ -59,6 +63,8 @@ public class CompositeCommand implements EditCommand {
     }
 
     /**
+     * Returns the number of parts.
+     *
      * @return the number of parts
      */
     public int size() {
@@ -66,6 +72,8 @@ public class CompositeCommand implements EditCommand {
     }
 
     /**
+     * Checks whether no part has been added (History skips an empty group).
+     *
      * @return true if no part has been added (History skips an empty group)
      */
     public boolean isEmpty() {

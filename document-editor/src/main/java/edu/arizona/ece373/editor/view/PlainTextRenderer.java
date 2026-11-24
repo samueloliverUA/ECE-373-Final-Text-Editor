@@ -12,6 +12,10 @@ import java.util.List;
  */
 public final class PlainTextRenderer extends AbstractRenderer {
 
+    /** Creates a plain-text renderer. */
+    public PlainTextRenderer() {
+    }
+
     @Override
     protected List<String> tokens(FormattedText t) {
         List<String> out = new ArrayList<>();

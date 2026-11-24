@@ -7,8 +7,8 @@ import java.util.Deque;
 /**
  * Undo and redo stacks with no size limit (6.4.3).
  *
- * <p>TODO (week of Nov 16): {@code beginGroup}/{@code endGroup}/{@code abortGroup} for macro
- * replay, using CompositeCommand.
+ * <p>{@code beginGroup}, {@code endGroup} and {@code abortGroup} collect the commands of a macro
+ * replay into one {@link CompositeCommand}, so a single undo reverses the whole replay.
  */
 public final class History {
 
@@ -17,6 +17,8 @@ public final class History {
     private final Deque<EditCommand> redoStack = new ArrayDeque<>();
     private CompositeCommand group;
     /**
+     * Creates empty undo and redo stacks for a document.
+     *
      * @param doc the document every command runs against
      */
     public History(Document doc) {
@@ -42,7 +44,11 @@ public final class History {
         }
     }
 
-    /** @return a message saying what was undone, or that there was nothing to undo */
+    /**
+     * Undoes the most recent change.
+     *
+     * @return a message saying what was undone, or that there was nothing to undo
+     */
     public String undo() {
         if (group != null) {
             throw new IllegalStateException("cannot undo while a group is open");
@@ -56,7 +62,11 @@ public final class History {
         return "Undid: " + c.describe();
     }
 
-    /** @return a message saying what was redone, or that there was nothing to redo */
+    /**
+     * Redoes the most recently undone change.
+     *
+     * @return a message saying what was redone, or that there was nothing to redo
+     */
     public String redo() {
         if (group != null) {
             throw new IllegalStateException("cannot redo while a group is open");
@@ -115,17 +125,29 @@ public final class History {
         g.undo(doc);
     }
 
-    /** @return true if {@link #undo} would do something */
+    /**
+     * Checks whether {@link #undo} would do something.
+     *
+     * @return true if {@link #undo} would do something
+     */
     public boolean canUndo() {
         return !undoStack.isEmpty();
     }
 
-    /** @return true if {@link #redo} would do something */
+    /**
+     * Checks whether {@link #redo} would do something.
+     *
+     * @return true if {@link #redo} would do something
+     */
     public boolean canRedo() {
         return !redoStack.isEmpty();
     }
 
-    /** @return true between {@link #beginGroup} and {@link #endGroup} or {@link #abortGroup} */
+    /**
+     * Checks whether a command group is open.
+     *
+     * @return true between {@link #beginGroup} and {@link #endGroup} or {@link #abortGroup}
+     */
     public boolean isGroupOpen() {
         return group != null;
     }

@@ -23,6 +23,8 @@ public final class SplitParagraphCommand implements EditCommand {
     private boolean done;
 
     /**
+     * Creates a command that splits a paragraph in two.
+     *
      * @param number the paragraph to split, counting from 1
      * @param offset where to split, 0 to the paragraph's length
      */

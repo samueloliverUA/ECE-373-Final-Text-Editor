@@ -28,6 +28,8 @@ public final class FormatTitleCommand implements EditCommand {
     private List<TextRun> oldRuns;
 
     /**
+     * Creates a command that formats a section title.
+     *
      * @param section the section whose title to format
      * @param change the attribute and its new value
      */
@@ -38,6 +40,8 @@ public final class FormatTitleCommand implements EditCommand {
     }
 
     /**
+     * Creates a command that formats a section title.
+     *
      * @param section the section whose title to format
      * @param attrAndValue the attribute and value as typed, e.g. {@code {"bold", "on"}};
      *     checked by {@link #validate}

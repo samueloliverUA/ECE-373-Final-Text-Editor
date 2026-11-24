@@ -10,6 +10,8 @@ import edu.arizona.ece373.editor.app.Action;
 public interface ActionFactory {
 
     /**
+     * Builds the action for one verb from its parsed arguments.
+     *
      * @param args the arguments after the verb
      * @return the action to run
      * @throws ParseException if the arguments are missing or malformed

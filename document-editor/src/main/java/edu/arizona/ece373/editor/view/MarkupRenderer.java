@@ -30,6 +30,10 @@ import java.util.List;
  */
 public final class MarkupRenderer extends AbstractRenderer {
 
+    /** Creates a markup renderer. */
+    public MarkupRenderer() {
+    }
+
     @Override
     protected List<String> tokens(FormattedText t) {
         List<String> out = new ArrayList<>();

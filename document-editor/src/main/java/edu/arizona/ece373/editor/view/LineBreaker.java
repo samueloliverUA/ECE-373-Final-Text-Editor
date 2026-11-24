@@ -12,6 +12,8 @@ import java.util.List;
 public interface LineBreaker {
 
     /**
+     * Splits one paragraph's words into lines no wider than the width.
+     *
      * @param words the words of one paragraph, in order; none contains a line break
      * @param width the maximum line length in characters, at least 1
      * @return the lines, in order; empty if {@code words} is empty

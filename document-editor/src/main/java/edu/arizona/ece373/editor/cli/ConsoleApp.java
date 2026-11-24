@@ -33,6 +33,8 @@ public final class ConsoleApp {
     private final PrintStream out;
 
     /**
+     * Creates the console application.
+     *
      * @param editor the editor
      * @param parser the command parser
      * @param scripts the script runner (sharing the same parser and editor)

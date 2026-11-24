@@ -12,6 +12,10 @@ import java.util.List;
  */
 public final class SubstringMatch implements MatchStrategy {
 
+    /** Creates a substring match strategy. */
+    public SubstringMatch() {
+    }
+
     @Override
     public List<int[]> findIn(String text, String q) {
         List<int[]> matches = new ArrayList<>();

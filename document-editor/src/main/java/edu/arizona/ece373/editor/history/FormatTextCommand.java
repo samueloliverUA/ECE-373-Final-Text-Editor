@@ -30,6 +30,8 @@ public final class FormatTextCommand implements EditCommand {
     private List<TextRun> oldRuns;
 
     /**
+     * Creates a command that formats a range of text.
+     *
      * @param range the characters to format
      * @param change the attribute and its new value
      */
@@ -40,6 +42,8 @@ public final class FormatTextCommand implements EditCommand {
     }
 
     /**
+     * Creates a command that formats a range of text.
+     *
      * @param range the characters to format
      * @param attrAndValue the attribute and value as typed, e.g. {@code {"size", "14"}};
      *     checked by {@link #validate}

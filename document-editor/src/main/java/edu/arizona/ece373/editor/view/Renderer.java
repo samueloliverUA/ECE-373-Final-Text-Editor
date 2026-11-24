@@ -12,6 +12,8 @@ import edu.arizona.ece373.editor.model.Document;
 public interface Renderer {
 
     /**
+     * Renders the whole document as text.
+     *
      * @param d the document to show
      * @param b how to break paragraphs into lines
      * @param width the maximum line length

@@ -16,6 +16,8 @@ public interface Action {
     Result run(Editor e);
 
     /**
+     * Tells whether a macro may record this action.
+     *
      * @return false for actions a macro must not record (undo, redo, macro, run, quit;
      *     UC6 alternate flow 1b)
      */

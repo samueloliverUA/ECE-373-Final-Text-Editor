@@ -25,6 +25,8 @@ public final class FormattedText {
     private final List<TextRun> runs = new ArrayList<>();
 
     /**
+     * Creates text with default formatting.
+     *
      * @param plain the initial text, with default formatting (null is treated as empty)
      */
     public FormattedText(String plain) {
@@ -32,6 +34,8 @@ public final class FormattedText {
     }
 
     /**
+     * Creates text with one format throughout.
+     *
      * @param plain the initial text (null is treated as empty)
      * @param format the formatting of every character
      */
@@ -42,6 +46,8 @@ public final class FormattedText {
     }
 
     /**
+     * Creates text from a list of runs.
+     *
      * @param runs the runs, in order; empty runs are dropped and equal neighbours merged
      */
     public FormattedText(List<TextRun> runs) {
@@ -53,7 +59,11 @@ public final class FormattedText {
     // Queries
     // ---------------------------------------------------------------------------------------
 
-    /** @return the number of characters */
+    /**
+     * Returns the number of characters.
+     *
+     * @return the number of characters
+     */
     public int length() {
         int n = 0;
         for (TextRun r : runs) {
@@ -62,12 +72,20 @@ public final class FormattedText {
         return n;
     }
 
-    /** @return true if there are no characters */
+    /**
+     * Checks whether there are no characters.
+     *
+     * @return true if there are no characters
+     */
     public boolean isEmpty() {
         return runs.isEmpty();
     }
 
-    /** @return the characters without formatting */
+    /**
+     * Returns the characters without formatting.
+     *
+     * @return the characters without formatting
+     */
     public String plainText() {
         StringBuilder sb = new StringBuilder();
         for (TextRun r : runs) {
@@ -76,12 +94,18 @@ public final class FormattedText {
         return sb.toString();
     }
 
-    /** @return the runs in order, read-only */
+    /**
+     * Returns the runs of this text in order.
+     *
+     * @return the runs in order, read-only
+     */
     public List<TextRun> runs() {
         return Collections.unmodifiableList(new ArrayList<>(runs));
     }
 
     /**
+     * Returns the formatting of one character.
+     *
      * @param offset a character offset, 0 to {@code length() - 1}
      * @return the formatting of that character
      * @throws EditException if there is no character at {@code offset}
@@ -101,7 +125,11 @@ public final class FormattedText {
         throw new IllegalStateException("unreachable");
     }
 
-    /** @return an independent copy */
+    /**
+     * Creates an independent copy of this text.
+     *
+     * @return an independent copy
+     */
     public FormattedText copy() {
         return new FormattedText(runs);
     }

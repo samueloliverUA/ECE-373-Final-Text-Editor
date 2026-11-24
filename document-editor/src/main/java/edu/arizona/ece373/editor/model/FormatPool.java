@@ -24,7 +24,15 @@ public final class FormatPool {
     // Key and value are the same object: the stored copy, looked up by equals/hashCode.
     private final Map<CharFormat, CharFormat> formats = new HashMap<>();
 
-    /** @return the pool shared by the whole program */
+    /** Creates an empty format pool. */
+    public FormatPool() {
+    }
+
+    /**
+     * Returns the pool shared by the whole program.
+     *
+     * @return the pool shared by the whole program
+     */
     public static FormatPool shared() {
         return SHARED;
     }
@@ -45,7 +53,11 @@ public final class FormatPool {
         return stored;
     }
 
-    /** @return the number of distinct formats stored (for the 'formats' command) */
+    /**
+     * Returns the number of distinct formats stored (for the 'formats' command).
+     *
+     * @return the number of distinct formats stored (for the 'formats' command)
+     */
     public int size() {
         return formats.size();
     }

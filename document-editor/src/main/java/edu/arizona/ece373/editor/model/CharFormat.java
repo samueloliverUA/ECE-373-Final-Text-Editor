@@ -34,6 +34,8 @@ public final class CharFormat {
     public final String color;
 
     /**
+     * Creates a format from all five attributes.
+     *
      * @param bold bold on or off
      * @param italic italic on or off
      * @param font font name
@@ -49,6 +51,8 @@ public final class CharFormat {
     }
 
     /**
+     * Creates a copy of this format with one attribute changed.
+     *
      * @param change the one attribute to change
      * @return a new format equal to this one except for that attribute
      */
@@ -63,7 +67,11 @@ public final class CharFormat {
         return FormatPool.shared().intern(made);
     }
 
-    /** @return true if every attribute matches {@link #DEFAULT} */
+    /**
+     * Checks whether every attribute matches {@link #DEFAULT}.
+     *
+     * @return true if every attribute matches {@link #DEFAULT}
+     */
     public boolean isDefault() {
         return equals(DEFAULT);
     }

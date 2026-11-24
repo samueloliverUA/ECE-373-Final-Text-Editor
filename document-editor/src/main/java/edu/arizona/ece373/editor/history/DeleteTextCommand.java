@@ -16,7 +16,11 @@ public final class DeleteTextCommand implements EditCommand {
     private final TextRange range;
     private FormattedText removed;
 
-    /** @param range the paragraph and characters to delete (end exclusive) */
+    /**
+     * Creates a command that deletes a range of text.
+     *
+     * @param range the paragraph and characters to delete (end exclusive)
+     */
     public DeleteTextCommand(TextRange range) {
         this.range = range;
     }
@@ -53,7 +57,11 @@ public final class DeleteTextCommand implements EditCommand {
         d.fireChanged(new DocumentEvent(DocumentEvent.Kind.TEXT));
     }
 
-    /** @return the text removed by {@link #execute}, or null before */
+    /**
+     * Returns the text this command removed.
+     *
+     * @return the text removed by {@link #execute}, or null before
+     */
     public FormattedText removedText() {
         return removed;
     }

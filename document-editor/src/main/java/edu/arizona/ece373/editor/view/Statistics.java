@@ -11,6 +11,8 @@ public final class Statistics {
     private final int paragraphs;
 
     /**
+     * Creates a snapshot of the three counts.
+     *
      * @param words whitespace-separated words in all paragraphs
      * @param characters characters in all paragraphs, spaces included
      * @param paragraphs number of paragraphs
@@ -21,17 +23,29 @@ public final class Statistics {
         this.paragraphs = paragraphs;
     }
 
-    /** @return the word count */
+    /**
+     * Returns the word count.
+     *
+     * @return the word count
+     */
     public int words() {
         return words;
     }
 
-    /** @return the character count, spaces included */
+    /**
+     * Returns the character count, spaces included.
+     *
+     * @return the character count, spaces included
+     */
     public int characters() {
         return characters;
     }
 
-    /** @return the paragraph count */
+    /**
+     * Returns the paragraph count.
+     *
+     * @return the paragraph count
+     */
     public int paragraphs() {
         return paragraphs;
     }
