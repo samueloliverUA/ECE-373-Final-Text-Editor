@@ -30,7 +30,7 @@ import java.util.List;
  */
 public final class MarkupRenderer extends AbstractRenderer {
 
-    /** Creates a renderer that shows formatting markers. */
+    /** Creates a markup renderer. */
     public MarkupRenderer() {
     }
 

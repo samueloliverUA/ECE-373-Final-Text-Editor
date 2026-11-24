@@ -15,10 +15,6 @@ import java.util.Objects;
  */
 public final class ViewSettings {
 
-    /** Creates settings with the defaults: plain view, greedy breaker, width {@value #DEFAULT_WIDTH}. */
-    public ViewSettings() {
-    }
-
     /** Narrowest allowed width. */
     public static final int MIN_WIDTH = 10;
     /** Widest allowed width. */
@@ -30,7 +26,13 @@ public final class ViewSettings {
     private LineBreaker breaker = new GreedyLineBreaker();
     private int width = DEFAULT_WIDTH;
 
+    /** Creates settings with the default view, line breaker and width. */
+    public ViewSettings() {
+    }
+
     /**
+     * Sets the line width.
+     *
      * @param w the new width, {@value #MIN_WIDTH} to {@value #MAX_WIDTH}
      * @throws EditException if out of range; the old width is kept (UC4 1a)
      */
@@ -42,12 +44,20 @@ public final class ViewSettings {
         width = w;
     }
 
-    /** @param r the renderer to use from now on */
+    /**
+     * Sets the renderer.
+     *
+     * @param r the renderer to use from now on
+     */
     public void setRenderer(Renderer r) {
         renderer = Objects.requireNonNull(r, "renderer");
     }
 
-    /** @param b the line breaker to use from now on */
+    /**
+     * Sets the line breaker.
+     *
+     * @param b the line breaker to use from now on
+     */
     public void setBreaker(LineBreaker b) {
         breaker = Objects.requireNonNull(b, "breaker");
     }
@@ -82,22 +92,36 @@ public final class ViewSettings {
         }
     }
 
-    /** @return the current renderer */
+    /**
+     * Returns the current renderer.
+     *
+     * @return the current renderer
+     */
     public Renderer renderer() {
         return renderer;
     }
 
-    /** @return the current line breaker */
+    /**
+     * Returns the current line breaker.
+     *
+     * @return the current line breaker
+     */
     public LineBreaker breaker() {
         return breaker;
     }
 
-    /** @return the current width */
+    /**
+     * Returns the current width.
+     *
+     * @return the current width
+     */
     public int width() {
         return width;
     }
 
     /**
+     * Renders a document with the current settings.
+     *
      * @param d the document
      * @return {@code d} rendered with the current renderer, breaker and width
      */
