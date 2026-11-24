@@ -24,7 +24,7 @@ import java.util.Objects;
  */
 public final class SearchService {
 
-    /** Creates a search service. */
+    /** Creates a search service. It holds no state. */
     public SearchService() {
     }
 

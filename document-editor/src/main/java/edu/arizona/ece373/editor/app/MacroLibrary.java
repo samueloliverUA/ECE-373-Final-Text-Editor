@@ -27,14 +27,14 @@ import java.util.TreeMap;
  */
 public final class MacroLibrary {
 
+    /** Creates an empty library with no macros recorded. */
+    public MacroLibrary() {
+    }
+
     private final Map<String, List<Action>> macros = new TreeMap<>();
     private List<Action> recording;
     private String recordingName;
     private boolean playing;
-
-    /** Creates an empty macro library. */
-    public MacroLibrary() {
-    }
 
     /**
      * Starts recording a new macro.
@@ -134,27 +134,17 @@ public final class MacroLibrary {
                 + (steps.size() == 1 ? " step)" : " steps)"));
     }
 
-    /**
-     * Checks whether a macro is being recorded.
-     *
-     * @return true between {@link #startRecording} and {@link #stopRecording}
-     */
+    /** @return true between {@link #startRecording} and {@link #stopRecording} */
     public boolean isRecording() {
         return recording != null;
     }
 
-    /**
-     * Checks whether a macro is being replayed.
-     *
-     * @return true while {@link #play} is running
-     */
+    /** @return true while {@link #play} is running */
     public boolean isPlaying() {
         return playing;
     }
 
     /**
-     * Returns the number of steps in a macro.
-     *
      * @param name a macro name
      * @return its number of steps, or -1 if there is no such macro
      */
@@ -163,11 +153,7 @@ public final class MacroLibrary {
         return steps == null ? -1 : steps.size();
     }
 
-    /**
-     * Lists the recorded macro names.
-     *
-     * @return the recorded macro names, sorted
-     */
+    /** @return the recorded macro names, sorted */
     public List<String> names() {
         return new ArrayList<>(macros.keySet());
     }

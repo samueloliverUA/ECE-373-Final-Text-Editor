@@ -12,7 +12,7 @@ import java.util.List;
  */
 public final class PlainTextRenderer extends AbstractRenderer {
 
-    /** Creates a plain-text renderer. */
+    /** Creates a renderer that shows words only. */
     public PlainTextRenderer() {
     }
 
