@@ -32,6 +32,10 @@ public final class MacroLibrary {
     private String recordingName;
     private boolean playing;
 
+    /** Creates an empty macro library. */
+    public MacroLibrary() {
+    }
+
     /**
      * Starts recording a new macro.
      *
@@ -130,17 +134,27 @@ public final class MacroLibrary {
                 + (steps.size() == 1 ? " step)" : " steps)"));
     }
 
-    /** @return true between {@link #startRecording} and {@link #stopRecording} */
+    /**
+     * Checks whether a macro is being recorded.
+     *
+     * @return true between {@link #startRecording} and {@link #stopRecording}
+     */
     public boolean isRecording() {
         return recording != null;
     }
 
-    /** @return true while {@link #play} is running */
+    /**
+     * Checks whether a macro is being replayed.
+     *
+     * @return true while {@link #play} is running
+     */
     public boolean isPlaying() {
         return playing;
     }
 
     /**
+     * Returns the number of steps in a macro.
+     *
      * @param name a macro name
      * @return its number of steps, or -1 if there is no such macro
      */
@@ -149,7 +163,11 @@ public final class MacroLibrary {
         return steps == null ? -1 : steps.size();
     }
 
-    /** @return the recorded macro names, sorted */
+    /**
+     * Lists the recorded macro names.
+     *
+     * @return the recorded macro names, sorted
+     */
     public List<String> names() {
         return new ArrayList<>(macros.keySet());
     }

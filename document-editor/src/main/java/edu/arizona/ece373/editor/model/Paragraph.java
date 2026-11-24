@@ -10,13 +10,19 @@ public final class Paragraph extends DocumentNode {
     private final FormattedText text;
 
     /**
+     * Creates a paragraph.
+     *
      * @param text the paragraph text
      */
     public Paragraph(FormattedText text) {
         this.text = text;
     }
 
-    /** @return the paragraph's text */
+    /**
+     * Returns the paragraph's text.
+     *
+     * @return the paragraph's text
+     */
     public FormattedText text() {
         return text;
     }

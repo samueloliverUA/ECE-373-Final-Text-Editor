@@ -17,6 +17,8 @@ public final class TextRange {
     public final int end;
 
     /**
+     * Creates a character range inside one paragraph.
+     *
      * @param paragraph 1-based paragraph number
      * @param start start offset, inclusive
      * @param end end offset, exclusive
@@ -43,7 +45,11 @@ public final class TextRange {
         }
     }
 
-    /** @return true if this is a single position ({@code start == end}) */
+    /**
+     * Checks whether this is a single position ({@code start == end}).
+     *
+     * @return true if this is a single position ({@code start == end})
+     */
     public boolean isPosition() {
         return start == end;
     }

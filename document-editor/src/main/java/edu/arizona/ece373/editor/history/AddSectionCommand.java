@@ -16,6 +16,8 @@ public final class AddSectionCommand implements EditCommand {
     private SectionPath addedPath;
 
     /**
+     * Creates a command that adds a section.
+     *
      * @param parentPath the parent section, or null for a top-level section
      * @param title the title; must not be blank
      */
@@ -50,7 +52,11 @@ public final class AddSectionCommand implements EditCommand {
         d.fireChanged(new DocumentEvent(DocumentEvent.Kind.STRUCTURE));
     }
 
-    /** @return the path the section was added at, or null before {@link #execute} */
+    /**
+     * Returns the path of the section this command added.
+     *
+     * @return the path the section was added at, or null before {@link #execute}
+     */
     public SectionPath addedPath() {
         return addedPath;
     }

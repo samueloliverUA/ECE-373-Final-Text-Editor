@@ -20,6 +20,10 @@ public final class CheckpointStore {
     // TreeMap keeps the names sorted, so 'checkpoint list' output is repeatable.
     private final Map<String, DocumentMemento> saved = new TreeMap<>();
 
+    /** Creates an empty checkpoint store. */
+    public CheckpointStore() {
+    }
+
     /**
      * Saves the document under a name. An existing checkpoint with that name is
      * overwritten.
@@ -36,6 +40,8 @@ public final class CheckpointStore {
     }
 
     /**
+     * Looks up a saved checkpoint by name.
+     *
      * @param name a checkpoint name
      * @return the saved copy
      * @throws EditException if there is no checkpoint with that name; the message
@@ -56,12 +62,21 @@ public final class CheckpointStore {
         return m;
     }
 
-    /** @return true if a checkpoint with this name exists */
+    /**
+     * Checks whether a checkpoint with this name exists.
+     *
+     * @param name a checkpoint name
+     * @return true if a checkpoint with this name exists
+     */
     public boolean has(String name) {
         return name != null && saved.containsKey(name);
     }
 
-    /** @return the checkpoint names, sorted */
+    /**
+     * Lists the saved checkpoint names.
+     *
+     * @return the checkpoint names, sorted
+     */
     public List<String> names() {
         return new ArrayList<>(saved.keySet());
     }

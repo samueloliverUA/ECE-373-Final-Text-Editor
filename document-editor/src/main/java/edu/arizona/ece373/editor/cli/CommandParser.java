@@ -40,9 +40,8 @@ import edu.arizona.ece373.editor.model.FormatPool;
  * ({@code undo}) or two ({@code section add}); a two-word match wins over a one-word one. The
  * parser never touches the Document; the actions it builds call Editor methods when run.
  *
- * <p>Every verb in the Section 1.3 table is parsed and its arguments are checked. Verbs whose
- * engine support has not landed yet build an action that reports "not available yet" when
- * run; each is marked {@code TODO} with the Editor call to make once it exists.
+ * <p>Every verb in the Section 1.3 table is parsed, has its arguments checked, and runs
+ * through the Editor.
  *
  * <p>Satisfies 6.1.1, 6.1.3, 6.1.5.
  */
@@ -374,7 +373,11 @@ public final class CommandParser {
         throw new ParseException("unknown command '" + first + "'");
     }
 
-    /** @return every registered verb, in registration order */
+    /**
+     * Lists every registered verb.
+     *
+     * @return every registered verb, in registration order
+     */
     public Set<String> verbs() {
         return Collections.unmodifiableSet(factories.keySet());
     }

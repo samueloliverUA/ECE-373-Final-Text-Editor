@@ -11,18 +11,28 @@ public final class Section extends DocumentNode {
     private final List<DocumentNode> children = new ArrayList<>();
 
     /**
+     * Creates a section with no children.
+     *
      * @param title the section title (empty for the document root)
      */
     public Section(FormattedText title) {
         this.title = title;
     }
 
-    /** @return the title */
+    /**
+     * Returns the title.
+     *
+     * @return the title
+     */
     public FormattedText title() {
         return title;
     }
 
-    /** @return the children in order, read-only */
+    /**
+     * Returns the children of this section in order.
+     *
+     * @return the children in order, read-only
+     */
     public List<DocumentNode> children() {
         return Collections.unmodifiableList(children);
     }
@@ -59,6 +69,8 @@ public final class Section extends DocumentNode {
     }
 
     /**
+     * Finds a child's position in this section.
+     *
      * @param n a child node
      * @return its index among the children (by identity), or -1
      */
@@ -71,7 +83,11 @@ public final class Section extends DocumentNode {
         return -1;
     }
 
-    /** @return the subsections only, in order */
+    /**
+     * Lists only the subsections of this section.
+     *
+     * @return the subsections only, in order
+     */
     public List<Section> subsections() {
         List<Section> out = new ArrayList<>();
         for (DocumentNode child : children) {

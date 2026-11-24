@@ -26,6 +26,8 @@ public final class MoveTextCommand implements EditCommand {
     private int insertedAt = -1;
 
     /**
+     * Creates a command that moves text within a paragraph.
+     *
      * @param source the text to move
      * @param destParagraph the destination paragraph; must be the same as the source's
      * @param destOffset the destination, as an offset in the paragraph before the move

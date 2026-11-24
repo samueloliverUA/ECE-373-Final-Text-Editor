@@ -13,6 +13,8 @@ public final class InsertTextCommand implements EditCommand {
     private final String text;
 
     /**
+     * Creates a command that inserts text into a paragraph.
+     *
      * @param paragraph the paragraph number, counting from 1
      * @param offset where to insert; 0 is the start, the length is the end
      * @param text the text to insert

@@ -16,6 +16,8 @@ public final class Match {
     public final TextRange range;
 
     /**
+     * Creates a match at a text range.
+     *
      * @param range where the match is; must not be null
      */
     public Match(TextRange range) {

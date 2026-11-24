@@ -39,6 +39,10 @@ public abstract class AbstractRenderer implements Renderer, DocumentWriter {
     private LineBreaker breaker;
     private int width;
 
+    /** Creates a renderer. */
+    public AbstractRenderer() {
+    }
+
     @Override
     public final String render(Document d, LineBreaker b, int width) {
         this.breaker = Objects.requireNonNull(b, "breaker");

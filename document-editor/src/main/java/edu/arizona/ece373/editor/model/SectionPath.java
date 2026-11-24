@@ -64,12 +64,18 @@ public final class SectionPath {
         return new SectionPath(out);
     }
 
-    /** @return the number of levels; 1 for a top-level section */
+    /**
+     * Returns the number of levels; 1 for a top-level section.
+     *
+     * @return the number of levels; 1 for a top-level section
+     */
     public int depth() {
         return indices.size();
     }
 
     /**
+     * Returns the section index at one level of this path.
+     *
      * @param level 0-based level
      * @return the 1-based section index at that level
      */

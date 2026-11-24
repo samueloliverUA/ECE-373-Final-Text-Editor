@@ -10,6 +10,8 @@ public class EditException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     /**
+     * Creates the exception with a user-facing message.
+     *
      * @param message one readable line naming the problem
      */
     public EditException(String message) {

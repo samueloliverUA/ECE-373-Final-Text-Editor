@@ -16,6 +16,8 @@ public final class TextRun {
     public final CharFormat format;
 
     /**
+     * Creates a run of text with one format.
+     *
      * @param text the characters (may be empty; FormattedText never stores empty runs)
      * @param format their formatting
      * @throws NullPointerException if either argument is null
@@ -25,12 +27,18 @@ public final class TextRun {
         this.format = Objects.requireNonNull(format, "format");
     }
 
-    /** @return the number of characters */
+    /**
+     * Returns the number of characters.
+     *
+     * @return the number of characters
+     */
     public int length() {
         return text.length();
     }
 
     /**
+     * Creates a copy of this run with different text.
+     *
      * @param newText replacement characters
      * @return a run with the same formatting and different text
      */
@@ -39,6 +47,8 @@ public final class TextRun {
     }
 
     /**
+     * Creates a copy of this run with different formatting.
+     *
      * @param newFormat replacement formatting
      * @return a run with the same text and different formatting
      */

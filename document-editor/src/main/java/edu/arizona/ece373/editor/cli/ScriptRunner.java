@@ -26,6 +26,8 @@ public final class ScriptRunner {
     private final Editor editor;
 
     /**
+     * Creates a script runner.
+     *
      * @param parser the parser shared with the console
      * @param editor the editor every command runs against
      */

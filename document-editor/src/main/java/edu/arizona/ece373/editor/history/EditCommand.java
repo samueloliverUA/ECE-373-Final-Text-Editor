@@ -33,6 +33,10 @@ public interface EditCommand {
      */
     void undo(Document d);
 
-    /** @return a short description for messages, e.g. {@code added section 2.1} */
+    /**
+     * Describes this change in a few words for user messages.
+     *
+     * @return a short description for messages, e.g. {@code added section 2.1}
+     */
     String describe();
 }

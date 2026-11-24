@@ -22,7 +22,18 @@ import java.util.regex.Pattern;
 public final class FormatChange {
 
     /** The formatting attribute being changed. */
-    public enum Attribute { BOLD, ITALIC, FONT, SIZE, COLOR }
+    public enum Attribute {
+        /** Bold on or off. */
+        BOLD,
+        /** Italic on or off. */
+        ITALIC,
+        /** Font name. */
+        FONT,
+        /** Point size. */
+        SIZE,
+        /** Text color. */
+        COLOR
+    }
 
     /** Smallest allowed point size. */
     public static final int MIN_SIZE = 6;
@@ -46,17 +57,29 @@ public final class FormatChange {
         this.size = size;
     }
 
-    /** @param on bold on or off @return the change */
+    /**
+     * Creates a change that turns bold on or off.
+     *
+     * @param on bold on or off
+     * @return the change
+     */
     public static FormatChange bold(boolean on) {
         return new FormatChange(Attribute.BOLD, on, null, 0);
     }
 
-    /** @param on italic on or off @return the change */
+    /**
+     * Creates a change that turns italic on or off.
+     *
+     * @param on italic on or off
+     * @return the change
+     */
     public static FormatChange italic(boolean on) {
         return new FormatChange(Attribute.ITALIC, on, null, 0);
     }
 
     /**
+     * Creates a change that sets the font.
+     *
      * @param name font name
      * @return the change
      * @throws EditException if the name is blank
@@ -69,6 +92,8 @@ public final class FormatChange {
     }
 
     /**
+     * Creates a change that sets the point size.
+     *
      * @param points point size
      * @return the change
      * @throws EditException if outside {@value #MIN_SIZE}-{@value #MAX_SIZE}
@@ -82,6 +107,8 @@ public final class FormatChange {
     }
 
     /**
+     * Creates a change that sets the color.
+     *
      * @param color a name from {@link #COLOR_NAMES} or {@code #RRGGBB}, any case
      * @return the change
      * @throws EditException if the color is not recognised
@@ -111,6 +138,8 @@ public final class FormatChange {
     }
 
     /**
+     * Creates a change from an attribute and value as typed.
+     *
      * @param attr {@code bold}, {@code italic}, {@code font}, {@code size} or {@code color}
      * @param value the new value ({@code on}/{@code off} for bold and italic)
      * @return the change
@@ -129,22 +158,38 @@ public final class FormatChange {
         };
     }
 
-    /** @return which attribute this changes */
+    /**
+     * Returns which attribute this changes.
+     *
+     * @return which attribute this changes
+     */
     public Attribute attribute() {
         return attribute;
     }
 
-    /** @return the new on/off value (BOLD and ITALIC only) */
+    /**
+     * Returns the new on/off value (BOLD and ITALIC only).
+     *
+     * @return the new on/off value (BOLD and ITALIC only)
+     */
     public boolean flag() {
         return flag;
     }
 
-    /** @return the new font name or color (FONT and COLOR only) */
+    /**
+     * Returns the new font name or color (FONT and COLOR only).
+     *
+     * @return the new font name or color (FONT and COLOR only)
+     */
     public String text() {
         return text;
     }
 
-    /** @return the new point size (SIZE only) */
+    /**
+     * Returns the new point size (SIZE only).
+     *
+     * @return the new point size (SIZE only)
+     */
     public int size() {
         return size;
     }

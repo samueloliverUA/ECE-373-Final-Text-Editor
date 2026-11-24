@@ -23,6 +23,8 @@ public final class RestoreCheckpointCommand implements EditCommand {
     private DocumentMemento before;
 
     /**
+     * Creates a command that restores a saved checkpoint.
+     *
      * @param store where the checkpoints are kept
      * @param name the checkpoint to restore
      */

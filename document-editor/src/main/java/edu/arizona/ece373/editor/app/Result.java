@@ -19,6 +19,8 @@ public final class Result {
     }
 
     /**
+     * Creates a success result.
+     *
      * @param msg the message to show
      * @return a success result
      */
@@ -27,6 +29,8 @@ public final class Result {
     }
 
     /**
+     * Creates a failure result.
+     *
      * @param msg one line naming the problem
      * @return a failure result
      */
@@ -35,6 +39,8 @@ public final class Result {
     }
 
     /**
+     * Creates a result that ends the program.
+     *
      * @param msg the goodbye message
      * @return a success result that tells the console to exit
      */
