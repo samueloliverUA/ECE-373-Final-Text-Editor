@@ -20,7 +20,7 @@ import java.util.List;
  */
 public final class BalancedLineBreaker implements LineBreaker {
 
-    /** Creates a minimum-raggedness line breaker. */
+    /** Creates a balanced line breaker. */
     public BalancedLineBreaker() {
     }
 

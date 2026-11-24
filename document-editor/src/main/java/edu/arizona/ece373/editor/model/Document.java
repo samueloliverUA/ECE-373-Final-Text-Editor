@@ -11,12 +11,12 @@ import java.util.Objects;
  */
 public final class Document {
 
-    /** Creates an empty document: a root section with no children. */
-    public Document() {
-    }
-
     private Section root = new Section(new FormattedText(""));
     private final List<DocumentListener> listeners = new ArrayList<>();
+
+    /** Creates an empty document. */
+    public Document() {
+    }
 
     /**
      * Registers a listener. Listeners are called in the order they were added. Listeners
@@ -65,12 +65,20 @@ public final class Document {
         root = Objects.requireNonNull(m, "memento").snapshot().deepCopy();
     }
 
-    /** @return the untitled root section */
+    /**
+     * Returns the untitled root section.
+     *
+     * @return the untitled root section
+     */
     public Section root() {
         return root;
     }
 
-    /** @return every paragraph in document order */
+    /**
+     * Lists every paragraph in document order.
+     *
+     * @return every paragraph in document order
+     */
     public List<Paragraph> paragraphs() {
         List<Paragraph> out = new ArrayList<>();
         root.collectParagraphs(out);
@@ -78,6 +86,8 @@ public final class Document {
     }
 
     /**
+     * Finds a paragraph by its number.
+     *
      * @param n 1-based paragraph number in document order
      * @return that paragraph
      * @throws EditException if there is no such paragraph
@@ -92,6 +102,8 @@ public final class Document {
     }
 
     /**
+     * Returns the number of a paragraph.
+     *
      * @param p a paragraph in this document
      * @return its 1-based number, or -1 if it is not in the document
      */
@@ -129,6 +141,8 @@ public final class Document {
     }
 
     /**
+     * Builds an outline of the document.
+     *
      * @return the tree with section paths and paragraph numbers, one item per line, or
      *     {@code (empty document)}
      */

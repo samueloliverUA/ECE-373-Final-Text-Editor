@@ -12,7 +12,7 @@ import java.util.List;
  */
 public final class SubstringMatch implements MatchStrategy {
 
-    /** Creates a case-sensitive substring matcher. */
+    /** Creates a substring match strategy. */
     public SubstringMatch() {
     }
 
